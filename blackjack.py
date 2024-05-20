@@ -1,4 +1,3 @@
-import asyncio
 import random as rand
 
 
@@ -118,17 +117,17 @@ class Game:
         return score
 
     def player_moved(self, player):
-        self.turn = 0
-        if self.check_bust(self.players[1]):
-            print("ded")
-            self.dealer_turn()
+        self.turn = 2
 
         if player.get_move() == "hit":
             self.hit()
-            print(self.players[1])
+            if self.check_bust(self.players[1]):
+                print("ded")
+                self.dealer_turn()
         elif player.get_move() == "stand":
             self.stand()
             print(self.players[1])
+            self.dealer_turn()
 
         else:
             print("Invalid Move please fix")
@@ -136,27 +135,21 @@ class Game:
     def dealer_turn(self):
         self.turn = 1
 
-        while self.calculate_score(self.players[0]) > 21:
-            move = DealerBot.get_move(game=self, player_hand=self.players[0])
+        while self.calculate_score(self.players[0]) < 21:
+            move = get_move(self, player_hand=self.players[0])
 
             if move == "hit":
                 self.hit()
-                print(f"Dealer's hand: {self.players[0]}")
             elif move == "stand":
-                break
-            else:
-                print("Invalid move. Skipping dealer's turn.")
                 break
 
             if self.check_bust():
-                print(f"Dealer busted with hand: {self.players[0]}")
                 break
 
         self.end_game(against_dealer=True)
 
     # ends the game and determines the winner
     def end_game(self, print_output=True, against_dealer=True):
-
         # Calculate scores for all players
         scores = []
         playerScores = []
@@ -262,7 +255,7 @@ class DiscordPlayer:
     def __init__(self):
         self.move = None
 
-    def get_move(self, game=None, player_hand=None):
+    def get_move(self):
         return self.move
 
     def set_move(self, move, game):
@@ -270,10 +263,8 @@ class DiscordPlayer:
         game.player_moved(self)
 
 
-class DealerBot:
-
-    def get_move(self, game, player_hand):
-        if game.calculate_score(player_hand) > 17:
-            return "hit"
-        else:
-            return "stand"
+def get_move(game, player_hand):
+    if game.calculate_score(player_hand) < 17:
+        return "hit"
+    else:
+        return "stand"
