@@ -10,8 +10,8 @@ async def on_ready():
     print(f"We have logged in as {bot.user}")
 
 
-@bot.slash_command(name="blackjack_test",
-                   description="test the various blackjack functions",
+@bot.slash_command(name="Blackjack",
+                   description="play a game of blackjack",
                    test_guild="1241262568014610482")
 async def blackjack_game_command(ctx: discord.ApplicationContext):
     blackjack_game = blackjack.Game(2, decks=1)
