@@ -18,12 +18,12 @@ class BlackjackView(discord.ui.View):
         :return: str"""
         if game_over:
             dealer_hand = str(self.game_object.players[0])
-            if self.game_object.winner[0][0] == 0:
-                winner_text = "# Dealer wins!"
-            elif self.game_object.winner[0][0] == 1:
-                winner_text = "# You win!"
-            else:
+            if len(self.game_object.winner[0]) < 1:
                 winner_text = "# Push!"
+            elif self.game_object.winner[0][0] == 0:
+                winner_text = "# Dealer wins!"
+            else:
+                winner_text = "# You win!"
         else:
             dealer_hand = str(self.game_object.get_board()[0])
             winner_text = ""
