@@ -12,7 +12,10 @@ class BlackjackView(discord.ui.View):
         self.previous_move = None
         self.ctx = None
 
-    def format_content(self, game_over=False):
+    def format_content(self, game_over=False) -> str:
+        """Returns a formatted string representing the current game state.
+        :param game_over: A boolean value indicating if the game is over.
+        :return: str"""
         if game_over:
             dealer_hand = str(self.game_object.players[0])
             if self.game_object.winner[0][0] == 0:
@@ -41,7 +44,12 @@ class BlackjackView(discord.ui.View):
                 f"\n\n# Your Score: {self.game_object.calculate_score(self.game_object.players[1])} \n"
                 f"{winner_text}")
 
-    async def start_game(self, ctx):
+    async def start_game(self, ctx) -> None:
+        """
+        Begins a game of blackjack using the provided context.
+        :param ctx:
+        :return:
+        """
         self.ctx = ctx  # Store the context
         while self.game_object.winner is None:
             text_content = self.format_content()
@@ -61,6 +69,12 @@ class BlackjackView(discord.ui.View):
         await self.handle_move("double", interaction)
 
     async def handle_move(self, move, interaction):
+        """
+        Handles the player's move and updates the game state.
+        :param move:
+        :param interaction:
+        :return:
+        """
         self.player_object.set_move(move, self.game_object)
         self.previous_move = move
         await interaction.response.defer()
@@ -79,6 +93,9 @@ class BlackjackView(discord.ui.View):
 
 # GAME LOGIC BELOW
 class Game:
+    """
+    A class representing a game of blackjack.
+    """
     # players: number of players
     # decks: number of decks the more decks the more cards
     # board = [dealer's cards, player1's cards, player2's cards, ...]
@@ -223,7 +240,14 @@ class Game:
         self.end_game(against_dealer=True)
 
     # ends the game and determines the winner
-    def end_game(self, print_output=False, against_dealer=True):
+    def end_game(self, print_output=False, against_dealer=True) -> None:
+        """
+        Ends the game and determines the winner.
+        :param print_output: decides whether to print the game result
+        :param against_dealer: decides whether the game is against the dealer
+        (many winners) or against each other (one winner)
+        :return: None
+        """
         # Calculate scores for all players
         scores = []
         playerScores = []
@@ -300,44 +324,80 @@ class Game:
             else:
                 print("Tie game!")
 
-    # returns the current player
-    def current_player(self):
+    def current_player(self) -> list:
+        """
+        Returns the current player's hand.
+        :return: list of players cards
+        """
         return self.players[self.turn - 1]
 
     # returns the current turn
-    def get_turn(self):
+    def get_turn(self) -> int:
+        """
+        Returns the current turn.
+        :return: int
+        """
         return self.turn
 
     # returns the current players
-    def get_players(self):
+    def get_players(self) -> list:
+        """
+        Returns list of cards for each player.
+        :return: [[dealer's cards], [player2 cards], ...]
+        """
         return self.players
 
     # returns the current board
-    def get_board(self):
+    def get_board(self) -> list:
+        """
+        Returns the current board. With dealers second card hidden.
+        :return: [[dealer's cards], [player1 cards], [player2 cards], ...]
+        """
         return self.board
 
-    def get_deck(self):
+    def get_deck(self) -> list:
+        """
+        Returns the list of cards that is being drawn from.
+        :return: ex. ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+        """
         return self.deck
 
     # sets the current players
     # ex. players = [['A'],['A'],['A']]
-    def set_players(self, players):
+    def set_players(self, players: list) -> None:
+        """
+        Sets the player's cards.
+        :param players: ex. [['A'],['A'],['A']] will make players will have an ace
+        :return: None
+        """
         self.players = players
 
 
 class DiscordPlayer:
+    """A class representing the player in a game of blackjack."""
     def __init__(self):
         self.move = None
 
     def get_move(self):
+        """
+        Returns the move made by the player.
+        :return: the most recent move made by the player
+        """
         return self.move
 
-    def set_move(self, move, game):
+    def set_move(self, move: str, game: Game):
+        """
+        Sets the move for the player and updates the game state.
+        :param move:  The move to make (hit, stand, double)
+        :param game:  The game object to update
+        :return: None
+        """
         self.move = move
         game.player_moved(self)
 
 
 def get_move(game, player_hand):
+    """The dealers logic"""
     if game.calculate_score(player_hand) < 17:
         return "hit"
     else:
