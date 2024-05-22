@@ -69,7 +69,7 @@ class BlackjackView(discord.ui.View):
     async def double_callback(self, button, interaction):
         await self.handle_move("double", interaction)
 
-    async def handle_move(self, move: str, interaction: discord.Interaction):
+    async def handle_move(self, move: str, interaction: discord.Interaction) -> None:
         """
         Handles the player's move and updates the game state.
         :param move:
@@ -173,6 +173,11 @@ class Game:
     # deals the cards to the players
     # 2 cards per player and dealers second card is hidden
     def deal_cards(self):
+        """
+        Deals the cards to the players.
+        This function needs to be called before starting the game.
+        :return:
+        """
         for i in range(2):
             for player in self.players:
                 player.append(self.deck.pop())
@@ -181,6 +186,11 @@ class Game:
         self.board[0][1] = '🂠'
 
     def reset_game(self):
+        """
+        Resets the game to the initial state.
+        Call deal_cards() after this function to start a new game.
+        :return:
+        """
         self.deck = self.initialize_deck(self.decksNum)
         self.shuffle_deck()
         self.board = []
@@ -339,20 +349,15 @@ class Game:
         self.turn = 0  # Game over
         self.winner = winner
 
-        # # Print the game result if required
-        # if print_output:
-        #     print(f"\nFinal Board: {self.players}")
-        #     print(f"Scores: {scores}")
-        #     if against_dealer:
-        #         print(f"Dealer's hand: {self.players[0]}")
-        #     if len(winners) == 1 and winners[0] != 0:
-        #         print(f"Player {winners[0]} wins!")
-        #     elif len(winners) > 1:
-        #         print("Winners are: ", self.winner)
-        #     elif len(winners) == 1 and winners[0] == 0:
-        #         print("Dealer wins!")
-        #     else:
-        #         print("Tie game!")
+        # Print the game result if required
+        if print_output:
+            if len(winner) == 0:
+                print("No winner.")
+            else:
+                if len(winner) == 1:
+                    print(f"Player {winner[0]} wins!")
+                else:
+                    print("It's a tie!")
 
     def current_player(self) -> list:
         """
