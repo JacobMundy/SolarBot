@@ -4,6 +4,7 @@ from discord.ui import Item
 
 
 # DISCORD UI BELOW
+# noinspection PyUnusedLocal
 class BlackjackView(discord.ui.View):
     def __init__(self, player_object, game_object, *items: Item):
         super().__init__(*items)
@@ -18,9 +19,9 @@ class BlackjackView(discord.ui.View):
         :return: str"""
         if game_over:
             dealer_hand = str(self.game_object.players[0])
-            if len(self.game_object.winner[0]) < 1:
+            if len(self.game_object.winner) < 1:
                 winner_text = "# Push!"
-            elif self.game_object.winner[0][0] == 0:
+            elif self.game_object.winner[0] == 0:
                 winner_text = "# Dealer wins!"
             else:
                 winner_text = "# You win!"
@@ -44,16 +45,16 @@ class BlackjackView(discord.ui.View):
                 f"\n\n# Your Score: {self.game_object.calculate_score(self.game_object.players[1])} \n"
                 f"{winner_text}")
 
-    async def start_game(self, ctx) -> None:
+    async def start_game(self, message: discord.message) -> None:
         """
-        Begins a game of blackjack using the provided context.
-        :param ctx:
+        Begins a game of blackjack using the provided discord message.
+        :param message:
         :return:
         """
-        self.ctx = ctx  # Store the context
+        self.message = message  # Store the context
         while self.game_object.winner is None:
             text_content = self.format_content()
-            await ctx.respond(text_content, view=self)
+            await message.edit(content=text_content, view=self)
             await self.wait()  # Wait for the user to interact with the buttons
 
     @discord.ui.button(label="Hit", style=discord.ButtonStyle.primary)
@@ -68,7 +69,7 @@ class BlackjackView(discord.ui.View):
     async def double_callback(self, button, interaction):
         await self.handle_move("double", interaction)
 
-    async def handle_move(self, move, interaction):
+    async def handle_move(self, move: str, interaction: discord.Interaction):
         """
         Handles the player's move and updates the game state.
         :param move:
@@ -87,8 +88,36 @@ class BlackjackView(discord.ui.View):
             # Game is over, show the winner
             text_content = self.format_content(True)
             await interaction.message.edit(
-                content=text_content, view=None)
+                content=text_content, view=EndgameUI(game_object=self.game_object, message=interaction.message))
             self.stop()
+
+
+# noinspection PyUnusedLocal
+class EndgameUI(discord.ui.View):
+    def __init__(self, game_object, message: discord.message, *items: Item):
+        """
+        Initializes the Endgame buttons.
+        :param game_object:
+        :param message:
+        :param items:
+        """
+        super().__init__(*items)
+        self.game_object = game_object
+        self.message = message
+
+    @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
+    async def restart_callback(self, button, interaction):
+        await interaction.response.defer()
+        self.game_object.reset_game()
+        self.game_object.deal_cards()
+        view = BlackjackView(player_object=DiscordPlayer(), game_object=self.game_object)
+        await view.start_game(message=self.message)
+
+    @discord.ui.button(label="End", style=discord.ButtonStyle.red)
+    async def end_callback(self, button, interaction):
+        await interaction.response.defer()
+        await interaction.message.edit(content=interaction.message.content, view=None)
+        self.stop()
 
 
 # GAME LOGIC BELOW
@@ -257,8 +286,8 @@ class Game:
             playerScores.append(score)
 
         # Determine the winner(s)
-        winners = []
-        ties = []
+        winner = []
+        tie = []
         if against_dealer:
             for i in range(1, len(scores)):
                 # player busted
@@ -267,24 +296,24 @@ class Game:
 
                 # Dealer busts or player has higher score
                 if scores[i] > scores[0] or scores[0] > 21:
-                    winners.append(i)
+                    winner.append(i)
 
                 # Player has same score as dealer
                 if scores[i] == scores[0]:
                     # Don't add dealer twice
-                    if not ties.count(0):
-                        ties.append(0)
+                    if not tie.count(0):
+                        tie.append(0)
 
-                    ties.append(i)
+                    tie.append(i)
 
             # No one beats the dealer
-            if len(winners) == 0 and scores[0] <= 21 and len(ties) == 0:
-                winners.append(0)
+            if len(winner) == 0 and scores[0] <= 21 and len(tie) == 0:
+                winner.append(0)
 
             # Everyone busts
-            if len(winners) == 0 and len(ties) == 0:
+            if len(winner) == 0 and len(tie) == 0:
                 for i in range(len(scores)):
-                    ties.append(i)
+                    tie.append(i)
 
         else:  # Against each other (DIFFERENT FROM AGAINST DEALER)
             maxScore = 0
@@ -296,33 +325,34 @@ class Game:
             for i in range(len(scores)):
                 if maxScore <= scores[i] <= 21:
                     maxScore = scores[i]
-                    winners.append(i)
+                    winner.append(i)
 
             # Having multiple winners in this mode means a tie
-            if len(winners) > 1:
+            if len(winner) > 1:
                 for i in range(len(scores)):
                     if scores[i] == maxScore:
-                        ties.append(i)
+                        tie.append(i)
                 winners = []
             else:
                 ties = []
 
         self.turn = 0  # Game over
-        self.winner = (winners, ties)
-        # Print the game result if required
-        if print_output:
-            print(f"\nFinal Board: {self.players}")
-            print(f"Scores: {scores}")
-            if against_dealer:
-                print(f"Dealer's hand: {self.players[0]}")
-            if len(winners) == 1 and winners[0] != 0:
-                print(f"Player {winners[0]} wins!")
-            elif len(winners) > 1:
-                print("Winners are: ", self.winner)
-            elif len(winners) == 1 and winners[0] == 0:
-                print("Dealer wins!")
-            else:
-                print("Tie game!")
+        self.winner = winner
+
+        # # Print the game result if required
+        # if print_output:
+        #     print(f"\nFinal Board: {self.players}")
+        #     print(f"Scores: {scores}")
+        #     if against_dealer:
+        #         print(f"Dealer's hand: {self.players[0]}")
+        #     if len(winners) == 1 and winners[0] != 0:
+        #         print(f"Player {winners[0]} wins!")
+        #     elif len(winners) > 1:
+        #         print("Winners are: ", self.winner)
+        #     elif len(winners) == 1 and winners[0] == 0:
+        #         print("Dealer wins!")
+        #     else:
+        #         print("Tie game!")
 
     def current_player(self) -> list:
         """

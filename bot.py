@@ -22,6 +22,7 @@ async def blackjack_game_command(ctx: discord.ApplicationContext):
     discord_player = blackjack.DiscordPlayer()
     blackjack_game.deal_cards()
     view = blackjack.BlackjackView(player_object=discord_player, game_object=blackjack_game)
+    ctx = await ctx.respond("Starting a game of blackjack!", view=view)
     await view.start_game(ctx)
 
 
