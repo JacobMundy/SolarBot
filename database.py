@@ -73,6 +73,12 @@ def add_balance(user_id: str, amount: int) -> None:
 
 
 def subtract_balance(user_id: str, amount: int):
+    """
+    Subtracts the specified amount from the user's balance.
+    :param user_id:
+    :param amount:
+    :return:
+    """
     add_balance(user_id, -amount)
 
 
