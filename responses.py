@@ -2,6 +2,7 @@ import discord
 import random
 import database
 
+# these global variables will be used instead of function parameters
 my_bot = discord.Bot(command_prefix="!", intents=discord.Intents.all())
 ctx = discord.ApplicationContext
 
@@ -26,16 +27,27 @@ def balance():
     return f"Your balance is: {str(database.get_balance(str(ctx.author.id)))}"
 
 
+def daily():
+    database.create_user(str(ctx.author.id))
+    if database.claim_daily(str(ctx.author.id)):
+        return (f"You have claimed your daily reward of 1000! \n"
+                f"Your balance is now: {str(database.get_balance(str(ctx.author.id)))}")
+    else:
+        return "You have already claimed your daily reward!"
+
+
 handlers = {
     "hello": greetings,
     "ping": ping,
     "help": command_list,
-    "balance": balance
+    "balance": balance,
+    "daily": daily
 }
 
 alias_groups = {
     "hello": ["hi", "hey", "yo", "sup"],
-    "balance": ["bal"]
+    "balance": ["bal"],
+    "daily": ["payday", "pd"]
 }
 
 aliases = {alias: command for command, aliases in alias_groups.items() for alias in aliases}
