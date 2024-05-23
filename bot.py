@@ -6,6 +6,8 @@ import blackjack
 import responses
 from dice import DiceView
 
+import database
+
 bot = discord.Bot(command_prefix="!", intents=discord.Intents.all())
 
 
@@ -17,11 +19,18 @@ async def on_ready():
 @bot.slash_command(name="blackjack",
                    description="play a game of blackjack",
                    test_guild="1241262568014610482")
-async def blackjack_game_command(ctx: discord.ApplicationContext):
+async def blackjack_game_command(ctx: discord.ApplicationContext, bet_amount: discord.Option(int) = 200):
+    database.create_user(str(ctx.author.id))
+
+    if database.get_balance(str(ctx.author.id)) < bet_amount:
+        await ctx.respond("You don't have enough money to bet that amount! \n"
+                          "current balance: " + str(database.get_balance(str(ctx.author.id))))
+        return
+
     blackjack_game = blackjack.Game(2, decks=1)
     discord_player = blackjack.DiscordPlayer()
     blackjack_game.deal_cards()
-    view = blackjack.BlackjackView(player_object=discord_player, game_object=blackjack_game)
+    view = blackjack.BlackjackView(player_object=discord_player, game_object=blackjack_game, bet_amount=bet_amount)
     ctx = await ctx.respond("Starting a game of blackjack!", view=view)
     await view.start_game(ctx)
 

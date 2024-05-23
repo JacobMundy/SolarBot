@@ -1,30 +1,45 @@
 import random as rand
 import discord
 from discord.ui import Item
+import database
 
 
 # DISCORD UI BELOW
 # noinspection PyUnusedLocal
 class BlackjackView(discord.ui.View):
-    def __init__(self, player_object, game_object, *items: Item):
+    def __init__(self, player_object, game_object, bet_amount, *items: Item):
         super().__init__(*items)
         self.player_object = player_object
         self.game_object = game_object
         self.previous_move = None
         self.ctx = None
+        self.bet_amount = bet_amount
+        self.doubled_down = False
+        self.player_won = False
+        self.player_tied = False
 
     def format_content(self, game_over=False) -> str:
         """Returns a formatted string representing the current game state.
         :param game_over: A boolean value indicating if the game is over.
         :return: str"""
         if game_over:
+            if self.doubled_down:
+                money_won = self.bet_amount * 2
+            else:
+                money_won = self.bet_amount
+
             dealer_hand = str(self.game_object.players[0])
             if len(self.game_object.winner) < 1:
-                winner_text = "# Push!"
+                winner_text = ("# Push! \n"
+                               f"# Bet returned {money_won}")
+                self.player_tied = True
             elif self.game_object.winner[0] == 0:
-                winner_text = "# Dealer wins!"
+                winner_text = ("# Dealer wins! \n"
+                               f"# Lost {money_won}")
             else:
-                winner_text = "# You win!"
+                winner_text = ("# You win! \n"
+                               f"# Won {money_won}")
+                self.player_won = True
         else:
             dealer_hand = str(self.game_object.get_board()[0])
             winner_text = ""
@@ -65,8 +80,14 @@ class BlackjackView(discord.ui.View):
     async def stand_callback(self, button, interaction):
         await self.handle_move("stand", interaction)
 
-    @discord.ui.button(label="Double", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Double Down", style=discord.ButtonStyle.danger)
     async def double_callback(self, button, interaction):
+        balance = database.get_balance(str(interaction.user.id))
+        if balance < self.bet_amount:
+            await interaction.response.send_message("You do not have enough balance to double down.")
+            return
+
+        self.doubled_down = True
         await self.handle_move("double", interaction)
 
     async def handle_move(self, move: str, interaction: discord.Interaction) -> None:
@@ -81,20 +102,31 @@ class BlackjackView(discord.ui.View):
         await interaction.response.defer()
         player_score = self.game_object.calculate_score(self.game_object.players[1])
 
-        if player_score < 21 and move != "stand":
+        if player_score < 21 and (move != "stand" and move != "double"):
             text_content = self.format_content()
             await interaction.message.edit(content=text_content, view=self)
         else:
-            # Game is over, show the winner
             text_content = self.format_content(True)
             await interaction.message.edit(
-                content=text_content, view=EndgameUI(game_object=self.game_object, message=interaction.message))
+                content=text_content, view=EndgameUI(game_object=self.game_object,
+                                                     message=interaction.message,
+                                                     bet_amount=self.bet_amount,))
+
+            if self.doubled_down:
+                self.bet_amount *= 2
+
+            if self.player_won:
+                # Update the database
+                database.add_balance(str(interaction.user.id), self.bet_amount * 2)
+            elif not self.player_tied and not self.player_won:
+                # Update the database
+                database.subtract_balance(str(interaction.user.id), self.bet_amount)
             self.stop()
 
 
 # noinspection PyUnusedLocal
 class EndgameUI(discord.ui.View):
-    def __init__(self, game_object, message: discord.message, *items: Item):
+    def __init__(self, game_object, message: discord.message, bet_amount: int, *items: Item):
         """
         Initializes the Endgame buttons.
         :param game_object:
@@ -104,13 +136,22 @@ class EndgameUI(discord.ui.View):
         super().__init__(*items)
         self.game_object = game_object
         self.message = message
+        self.bet_amount = bet_amount
 
     @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
     async def restart_callback(self, button, interaction):
         await interaction.response.defer()
+
+        balance = database.get_balance(str(interaction.user.id))
+
+        if balance < self.bet_amount:
+            await interaction.message.edit(content="You do not have enough balance to play again."
+                                                   f"\n Current balance:{balance}")
+            return
+
         self.game_object.reset_game()
         self.game_object.deal_cards()
-        view = BlackjackView(player_object=DiscordPlayer(), game_object=self.game_object)
+        view = BlackjackView(player_object=DiscordPlayer(), game_object=self.game_object, bet_amount=self.bet_amount)
         await view.start_game(message=self.message)
 
     @discord.ui.button(label="End", style=discord.ButtonStyle.red)
@@ -256,6 +297,10 @@ class Game:
             if self.check_bust(self.players[1]):
                 self.dealer_turn()
         elif player.get_move() == "stand":
+            self.stand()
+            self.dealer_turn()
+        elif player.get_move() == "double":
+            self.hit()
             self.stand()
             self.dealer_turn()
 
