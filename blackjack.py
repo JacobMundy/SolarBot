@@ -8,7 +8,7 @@ import database
 # noinspection PyUnusedLocal
 class BlackjackView(discord.ui.View):
     def __init__(self, player_object, game_object, bet_amount, *items: Item):
-        super().__init__(*items)
+        super().__init__(timeout=120, *items)
         self.player_object = player_object
         self.game_object = game_object
         self.previous_move = None
@@ -17,6 +17,9 @@ class BlackjackView(discord.ui.View):
         self.doubled_down = False
         self.player_won = False
         self.player_tied = False
+
+    async def on_timeout(self):
+        await self.message.edit(content=self.message.content, view=None)
 
     def format_content(self, game_over=False) -> str:
         """Returns a formatted string representing the current game state.
@@ -133,10 +136,13 @@ class EndgameUI(discord.ui.View):
         :param message:
         :param items:
         """
-        super().__init__(*items)
+        super().__init__(timeout=20, *items)
         self.game_object = game_object
         self.message = message
         self.bet_amount = bet_amount
+
+    async def on_timeout(self):
+        await self.message.edit(content=self.message.content, view=None)
 
     @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
     async def restart_callback(self, button, interaction):
