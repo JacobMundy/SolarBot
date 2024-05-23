@@ -61,10 +61,8 @@ async def blackjack_game_command(ctx: discord.ApplicationContext, bet_amount: di
                    description="roll a die",
                    test_guild="1241262568014610482")
 async def roll_die(ctx: discord.ApplicationContext, sides: int = 6):
-    if sides < 1:
-        await ctx.respond("Die must have at least 1 side!")
-        return
-    await ctx.respond(f"Rolled a {random.randint(1, sides)}", view=DiceView(sides))
+    view = DiceView(sides, ctx)
+    await view.roll()
 
 
 @bot.listen()
