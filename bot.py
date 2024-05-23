@@ -16,6 +16,14 @@ async def on_ready():
     print(f"We have logged in as {bot.user}")
 
 
+@bot.slash_command(name="balance",
+                   description="check your balance",
+                   test_guild="1241262568014610482")
+async def check_balance(ctx: discord.ApplicationContext):
+    database.create_user(str(ctx.author.id))
+    await ctx.respond("Your balance is: " + str(database.get_balance(str(ctx.author.id))))
+
+
 @bot.slash_command(name="blackjack",
                    description="play a game of blackjack",
                    test_guild="1241262568014610482")

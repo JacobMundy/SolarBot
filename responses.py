@@ -1,7 +1,9 @@
 import discord
 import random
+import database
 
 my_bot = discord.Bot(command_prefix="!", intents=discord.Intents.all())
+ctx = discord.ApplicationContext
 
 
 def ping():
@@ -19,14 +21,21 @@ def command_list():
             f">>> {commands}")
 
 
+def balance():
+    database.create_user(str(ctx.author.id))
+    return f"Your balance is: {str(database.get_balance(str(ctx.author.id)))}"
+
+
 handlers = {
     "hello": greetings,
     "ping": ping,
     "help": command_list,
+    "balance": balance
 }
 
 alias_groups = {
     "hello": ["hi", "hey", "yo", "sup"],
+    "balance": ["bal"]
 }
 
 aliases = {alias: command for command, aliases in alias_groups.items() for alias in aliases}
@@ -44,6 +53,8 @@ async def handle_response(message, discord_bot: discord.bot) -> None:
     response = handlers.get(canonical_command)
     global my_bot
     my_bot = discord_bot
+    global ctx
+    ctx = message
 
     if response is None:
         return
