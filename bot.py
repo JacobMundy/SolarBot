@@ -1,11 +1,9 @@
 import random
 import discord
 import os
-
 import blackjack
 import responses
 from dice import DiceView
-
 import database
 
 bot = discord.Bot(command_prefix="!", intents=discord.Intents.all())
@@ -24,11 +22,27 @@ async def check_balance(ctx: discord.ApplicationContext):
     await ctx.respond("Your balance is: " + str(database.get_balance(str(ctx.author.id))))
 
 
+@bot.slash_command(name="daily",
+                   description="claim your daily reward",
+                   test_guild="1241262568014610482")
+async def daily_reward(ctx: discord.ApplicationContext):
+    database.create_user(str(ctx.author.id))
+    if database.claim_daily(str(ctx.author.id)):
+        await ctx.respond("You have claimed your daily reward of 1000! \n"
+                          "Your balance is now: " + str(database.get_balance(str(ctx.author.id))) + "\n")
+    else:
+        await ctx.respond("You have already claimed your daily reward!")
+
+
 @bot.slash_command(name="blackjack",
                    description="play a game of blackjack",
                    test_guild="1241262568014610482")
 async def blackjack_game_command(ctx: discord.ApplicationContext, bet_amount: discord.Option(int) = 200):
     database.create_user(str(ctx.author.id))
+
+    if bet_amount < 200:  # Minimum bet amount
+        await ctx.respond("Minimum bet amount is 200!")
+        return
 
     if database.get_balance(str(ctx.author.id)) < bet_amount:
         await ctx.respond("You don't have enough money to bet that amount! \n"
