@@ -9,8 +9,11 @@ class DiceView(discord.ui.View):
         self.ctx = ctx
 
     async def on_timeout(self) -> None:
-        await self.ctx.edit(view=None)
-        self.stop()
+        try:
+            await self.ctx.edit(view=None)
+            self.stop()
+        except discord.errors.NotFound:
+            print("Message was deleted/could not be found before timeout")
 
     async def roll(self, respond=True):
         if self.sides < 1:
