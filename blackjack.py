@@ -20,6 +20,7 @@ class BlackjackView(discord.ui.View):
 
     async def on_timeout(self):
         await self.message.edit(content=self.message.content, view=None)
+        self.stop()
 
     def format_content(self, game_over=False) -> str:
         """Returns a formatted string representing the current game state.
@@ -143,6 +144,7 @@ class EndgameUI(discord.ui.View):
 
     async def on_timeout(self):
         await self.message.edit(content=self.message.content, view=None)
+        self.stop()
 
     @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
     async def restart_callback(self, button, interaction):
