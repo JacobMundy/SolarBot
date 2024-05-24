@@ -1,4 +1,3 @@
-import random
 import discord
 import os
 import blackjack
@@ -6,7 +5,9 @@ import responses
 from dice import DiceView
 import database
 
-bot = discord.Bot(command_prefix="!", intents=discord.Intents.all())
+from discord.ext import bridge
+
+bot = bridge.Bot(command_prefix="!", intents=discord.Intents.all())
 
 
 @bot.event
@@ -14,17 +15,17 @@ async def on_ready():
     print(f"We have logged in as {bot.user}")
 
 
-@bot.slash_command(name="balance",
-                   description="check your balance",
-                   test_guild="1241262568014610482")
+@bot.bridge_command(name="balance",
+                    description="check your balance",
+                    test_guild="1241262568014610482")
 async def check_balance(ctx: discord.ApplicationContext):
     database.create_user(str(ctx.author.id))
     await ctx.respond("Your balance is: " + str(database.get_balance(str(ctx.author.id))))
 
 
-@bot.slash_command(name="daily",
-                   description="claim your daily reward",
-                   test_guild="1241262568014610482")
+@bot.bridge_command(name="daily",
+                    description="claim your daily reward",
+                    test_guild="1241262568014610482")
 async def daily_reward(ctx: discord.ApplicationContext):
     database.create_user(str(ctx.author.id))
     if database.claim_daily(str(ctx.author.id)):
@@ -34,9 +35,9 @@ async def daily_reward(ctx: discord.ApplicationContext):
         await ctx.respond("You have already claimed your daily reward!")
 
 
-@bot.slash_command(name="blackjack",
-                   description="play a game of blackjack",
-                   test_guild="1241262568014610482")
+@bot.bridge_command(name="blackjack",
+                    description="play a game of blackjack",
+                    test_guild="1241262568014610482")
 async def blackjack_game_command(ctx: discord.ApplicationContext, bet_amount: discord.Option(int) = 200):
     database.create_user(str(ctx.author.id))
 
@@ -57,9 +58,9 @@ async def blackjack_game_command(ctx: discord.ApplicationContext, bet_amount: di
     await view.start_game(ctx)
 
 
-@bot.slash_command(name="roll",
-                   description="roll a die",
-                   test_guild="1241262568014610482")
+@bot.bridge_command(name="roll",
+                    description="roll a die",
+                    test_guild="1241262568014610482")
 async def roll_die(ctx: discord.ApplicationContext, sides: int = 6):
     view = DiceView(sides, ctx)
     await view.roll()
