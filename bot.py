@@ -1,11 +1,10 @@
 import discord
 import os
-import blackjack
-import responses
-from dice import DiceView
-import database
 
 from discord.ext import bridge
+from cogs.banking import Banking
+from cogs.games import Games
+
 
 bot = bridge.Bot(command_prefix="!", intents=discord.Intents.all())
 
@@ -15,69 +14,27 @@ async def on_ready():
     print(f"We have logged in as {bot.user}")
 
 
-@bot.bridge_command(name="balance",
-                    description="check your balance",
-                    test_guild="1241262568014610482")
-async def check_balance(ctx: discord.ApplicationContext):
-    database.create_user(str(ctx.author.id))
-    await ctx.respond("Your balance is: " + str(database.get_balance(str(ctx.author.id))))
-
-
-@bot.bridge_command(name="daily",
-                    description="claim your daily reward",
-                    test_guild="1241262568014610482")
-async def daily_reward(ctx: discord.ApplicationContext):
-    database.create_user(str(ctx.author.id))
-    if database.claim_daily(str(ctx.author.id)):
-        await ctx.respond("You have claimed your daily reward of 1000! \n"
-                          "Your balance is now: " + str(database.get_balance(str(ctx.author.id))) + "\n")
-    else:
-        await ctx.respond("You have already claimed your daily reward!")
-
-
-@bot.bridge_command(name="blackjack",
-                    description="play a game of blackjack",
-                    test_guild="1241262568014610482")
-async def blackjack_game_command(ctx: discord.ApplicationContext, bet_amount: discord.Option(int) = 200):
-    database.create_user(str(ctx.author.id))
-
-    if bet_amount < 200:  # Minimum bet amount
-        await ctx.respond("Minimum bet amount is 200!")
-        return
-
-    if database.get_balance(str(ctx.author.id)) < bet_amount:
-        await ctx.respond("You don't have enough money to bet that amount! \n"
-                          "current balance: " + str(database.get_balance(str(ctx.author.id))))
-        return
-
-    blackjack_game = blackjack.Game(2, decks=1)
-    discord_player = blackjack.DiscordPlayer()
-    blackjack_game.deal_cards()
-    view = blackjack.BlackjackView(player_object=discord_player, game_object=blackjack_game, bet_amount=bet_amount)
-    ctx = await ctx.respond("Starting a game of blackjack!", view=view)
-    await view.start_game(ctx)
-
-
-@bot.bridge_command(name="roll",
-                    description="roll a die",
-                    test_guild="1241262568014610482")
-async def roll_die(ctx: discord.ApplicationContext, sides: int = 6):
-    view = DiceView(sides, ctx)
-    await view.roll()
+@bot.command(name="hello",
+             description="say hello",
+             test_guild="1241262568014610482")
+async def hello(ctx: discord.ApplicationContext):
+    await ctx.respond("Hello!")
 
 
 @bot.listen()
 async def on_message(message):
 
-    if message.author == bot.user:
+    if message.author == bot.user or len(message.content) == 0:
         return
 
     print(f"Message sent in channel {message.channel}")
     if message.content[0] == "!":
         print(f"Command detected: {message.content}")
-        await responses.handle_response(message, bot)
+        # await responses.handle_response(message, bot)
 
 
 def run_bot():
+    bot.add_cog(Banking(bot))
+    bot.add_cog(Games(bot))
     token = str(os.getenv("DISCORD_TOKEN"))
     bot.run(token)
