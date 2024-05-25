@@ -34,7 +34,6 @@ def get_balance(user_id: str) -> int or None:
     :param user_id:
     :return: int or None
     """
-    # Query the database
     c.execute("SELECT balance FROM bank WHERE user=?", (user_id,))
     row = c.fetchone()
     if row:
@@ -49,7 +48,6 @@ def set_balance(user_id: str, balance: int) -> None:
     :param balance:
     :return:
     """
-    # Update the balance
     c.execute("UPDATE bank SET balance=? WHERE user=?", (balance, user_id))
     conn.commit()
 
@@ -64,10 +62,8 @@ def add_balance(user_id: str, amount: int) -> None:
     # Get the current balance
     balance = get_balance(user_id)
     if balance is not None:
-        # Update the balance
         set_balance(user_id, balance + amount)
     else:
-        # If the user does not exist, create a new entry
         create_user(user_id)
         set_balance(user_id, amount)
 

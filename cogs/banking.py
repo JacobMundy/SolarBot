@@ -5,12 +5,22 @@ import database
 
 
 async def get_balance_respond(ctx: discord.ApplicationContext) -> None:
+    """
+    Responds with the user's balance.
+    :param ctx:
+    :return:
+    """
     user_id = str(ctx.author.id)
     database.create_user(user_id)
     await ctx.respond("Your balance is: " + str(database.get_balance(user_id)))
 
 
 async def daily_respond(ctx: discord.ApplicationContext) -> None:
+    """
+    Responds with the user's daily reward and balance.
+    :param ctx:
+    :return:
+    """
     database.create_user(str(ctx.author.id))
     if database.claim_daily(str(ctx.author.id)):
         await ctx.respond("You have claimed your daily reward of 1000! \n"

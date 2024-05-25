@@ -7,6 +7,12 @@ from dice import DiceView
 
 
 async def start_blackjack(ctx: discord.ApplicationContext, bet_amount: int):
+    """
+    Starts a game of blackjack and responds with the game state and appropriate buttons.
+    :param ctx:
+    :param bet_amount:
+    :return:
+    """
     database.create_user(str(ctx.author.id))
 
     if bet_amount < 200:  # Minimum bet amount
@@ -27,6 +33,12 @@ async def start_blackjack(ctx: discord.ApplicationContext, bet_amount: int):
 
 
 async def start_dice(ctx: discord.ApplicationContext, sides: int):
+    """
+    Starts a die roll and responds with the result and appropriate buttons.
+    :param ctx:
+    :param sides:
+    :return:
+    """
     view = DiceView(sides=sides, ctx=ctx)
     await view.roll()
 
