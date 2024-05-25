@@ -87,7 +87,7 @@ class BlackjackView(discord.ui.View):
     @discord.ui.button(label="Double Down", style=discord.ButtonStyle.danger)
     async def double_callback(self, button, interaction):
         balance = database.get_balance(str(interaction.user.id))
-        if balance < self.bet_amount:
+        if balance < self.bet_amount * 2:
             await interaction.response.send_message("You do not have enough balance to double down.")
             return
 
