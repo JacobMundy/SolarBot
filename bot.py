@@ -1,10 +1,12 @@
 import discord
 import os
-
 from discord.ext import bridge
-from cogs.banking import Banking
-from cogs.games import Games
 
+# Add any cogs you want to load here,
+# should be names of the files in the cogs directory
+cogs_list = ['banking',
+             'games',
+             'fun']
 
 bot = bridge.Bot(command_prefix="!", intents=discord.Intents.all())
 
@@ -12,13 +14,6 @@ bot = bridge.Bot(command_prefix="!", intents=discord.Intents.all())
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
-
-
-@bot.command(name="hello",
-             description="say hello",
-             test_guild="1241262568014610482")
-async def hello(ctx: discord.ApplicationContext):
-    await ctx.respond("Hello!")
 
 
 @bot.listen()
@@ -30,11 +25,10 @@ async def on_message(message):
     print(f"Message sent in channel {message.channel}")
     if message.content[0] == "!":
         print(f"Command detected: {message.content}")
-        # await responses.handle_response(message, bot)
 
 
 def run_bot():
-    bot.add_cog(Banking(bot))
-    bot.add_cog(Games(bot))
+    for cog in cogs_list:
+        bot.load_extension(f"cogs.{cog}")
     token = str(os.getenv("DISCORD_TOKEN"))
     bot.run(token)
