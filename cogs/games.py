@@ -48,21 +48,30 @@ class Games(commands.Cog):
         self.bot = bot
 
     @bridge.bridge_command(name="blackjack",
+                           aliases=["bj"],
                            description="play a game of blackjack",
                            test_guild="1241262568014610482")
     async def blackjack_game_command(self, ctx: discord.ApplicationContext, bet_amount: discord.Option(int) = 200):
+        """
+        Play a game of blackjack. You need at least 200 to play.
+        :param ctx:
+        :param bet_amount:
+        :return:
+        """
         await start_blackjack(ctx, bet_amount)
 
     @bridge.bridge_command(name="roll",
                            description="roll a die",
                            test_guild="1241262568014610482")
     async def roll_die(self, ctx: discord.ApplicationContext, sides: int = 6):
+        """
+        Rolls a die with the specified number of sides, or 6 by default.
+        :param ctx:
+        :param sides:
+        :return:
+        """
         await start_dice(ctx, sides)
 
-    # FOLLOWING IS FOR ALIASES
-    @commands.command(name="bj",
-                      description="play a game of blackjack",
-                      test_guild="1241262568014610482")
-    async def blackjack_game_command_aliases(self, ctx: discord.ApplicationContext,
-                                             bet_amount: int = 200):
-        await start_blackjack(ctx, bet_amount)
+
+def setup(bot):
+    bot.add_cog(Games(bot))
