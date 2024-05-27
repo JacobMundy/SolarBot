@@ -12,6 +12,7 @@ class Banking(commands.Cog):
         self.bot = bot
 
     @bridge.bridge_command(name="balance",
+                           aliases=["bal"],
                            description="check your balance",
                            test_guild="1241262568014610482")
     async def check_balance(self, ctx: discord.ApplicationContext):
