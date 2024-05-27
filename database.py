@@ -95,8 +95,6 @@ def claim_daily(user_id: str) -> bool:
     # Get the current timestamp
     current_time = int(time.time())
 
-    print(f"last_claimed: {last_claimed} \n"
-          f"current_time: {current_time} \n")
     # Check if the user can claim the daily reward
     if current_time - last_claimed >= 86400:
         # Claim the reward
