@@ -6,7 +6,8 @@ from discord.ext import bridge
 # should be names of the files in the cogs directory
 cogs_list = ['banking',
              'games',
-             'fun']
+             'fun',
+             'admin']
 
 bot = bridge.Bot(command_prefix="!", intents=discord.Intents.all())
 
