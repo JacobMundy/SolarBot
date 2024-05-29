@@ -10,11 +10,12 @@ class Admin(commands.Cog):
                       aliases=["md"],
                       description="Mass delete messages in a channel",
                       test_guild="1241262568014610482")
-    async def mass_delete(self, ctx, amount: int):
+    async def mass_delete(self, ctx, amount: int, user_id: int = 0):
         """
-        Mass delete messages in a channel.
+        Mass delete specified number of messages in a channel.
         :param ctx:
         :param amount:
+        :param user_id:
         :return:
         """
         try:
@@ -22,7 +23,13 @@ class Admin(commands.Cog):
                 await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
                 return
 
-            await ctx.channel.purge(limit=amount)
+            if user_id != 0:
+                def check(message):
+                    return message.author.id == user_id
+
+                await ctx.channel.purge(limit=amount, check=check)
+            else:
+                await ctx.channel.purge(limit=amount)
 
         except discord.errors.Forbidden:
             print("Admin command invoked without permissions.")
