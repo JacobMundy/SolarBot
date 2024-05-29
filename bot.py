@@ -25,7 +25,7 @@ async def on_message(message):
 
     print(f"Message sent in channel {message.channel}")
     if message.content[0] == "!":
-        print(f"Command detected: {message.content}")
+        print(f"{message.author} Requested Command: {message.content}")
 
 
 def run_bot():
