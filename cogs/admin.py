@@ -35,6 +35,20 @@ class Admin(commands.Cog):
             print("Admin command invoked without permissions.")
             await ctx.respond("I don't have the permissions to do that!")
 
+    # TODO: add option to disable logging and add option to log to a different channel
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        """
+        Logs deleted messages.
+        :param message:
+        :return:
+        """
+        # print(f"Message deleted in {message.channel} by {message.author}: {message.content}")
+
+        channel = discord.utils.get(message.guild.channels, name="message-logs")
+        if message.channel != channel:
+            await channel.send(f"Message deleted in {message.channel} by {message.author}: {message.content}")
+
 
 def setup(bot):
     bot.add_cog(Admin(bot))
