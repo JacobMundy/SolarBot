@@ -1,9 +1,9 @@
 import discord
 from discord.ext import bridge
 from discord.ext import commands
-import database
-import blackjack
-from dice import DiceView
+from game_logic import blackjack
+from game_logic.dice import DiceView
+from database import db_commands as database
 
 
 async def start_blackjack(ctx: discord.ApplicationContext, bet_amount: int):

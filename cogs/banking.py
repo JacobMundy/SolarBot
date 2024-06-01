@@ -1,7 +1,7 @@
 import discord
 from discord.ext import bridge
 from discord.ext import commands
-import database
+from database import db_commands as database
 
 
 class Banking(commands.Cog):

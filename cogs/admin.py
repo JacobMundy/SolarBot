@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
-
-import database
+from database import db_commands as database
 
 
 class Admin(commands.Cog):
