@@ -1,7 +1,7 @@
 import random as rand
 import discord
 from discord.ui import Item
-import database
+from database import db_commands as database
 
 
 # DISCORD UI BELOW
@@ -143,8 +143,11 @@ class EndgameUI(discord.ui.View):
         self.bet_amount = bet_amount
 
     async def on_timeout(self):
-        await self.message.edit(content=self.message.content, view=None)
-        self.stop()
+        try:
+            await self.message.edit(content=self.message.content, view=None)
+            self.stop()
+        except discord.errors.NotFound:
+            print("Message was deleted/could not be found before timeout")
 
     @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
     async def restart_callback(self, button, interaction):
