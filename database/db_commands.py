@@ -1,9 +1,14 @@
 import sqlite3
 import time
+import os
+# TODO: use ORM instead of raw SQL
+# TODO: separate the database commands into a separate file
+
 
 # Create a connection to the SQLite database
 # If the database does not exist, it will be created
-conn = sqlite3.connect('bank.db')
+dir_path = os.path.dirname(os.path.realpath(__file__))
+conn = sqlite3.connect(dir_path + '/bank.db')
 
 # Create a cursor object
 c = conn.cursor()
