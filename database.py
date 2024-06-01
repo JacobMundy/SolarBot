@@ -16,6 +16,16 @@ c.execute('''CREATE TABLE IF NOT EXISTS bank
 c.execute('''CREATE TABLE IF NOT EXISTS daily
              (user TEXT PRIMARY KEY, last_claimed INTEGER)''')
 
+c.execute('''CREATE TABLE IF NOT EXISTS settings
+             (command TEXT PRIMARY KEY, command_settings BLOB)''')
+
+c.execute("INSERT OR IGNORE INTO settings (command, command_settings) "
+          "VALUES ('log_deleted_messages', 0)")
+c.execute("INSERT OR IGNORE INTO settings (command, command_settings) "
+          "VALUES ('log_deleted_messages_channel', 'message-logs')")
+
+conn.commit()
+
 
 def create_user(user_id: str) -> None:
     """
@@ -104,5 +114,30 @@ def claim_daily(user_id: str) -> bool:
         conn.commit()
         return True
     return False
+
+
+def get_settings(command: str) -> dict:
+    """
+    Returns the settings for the specified command.
+    :param command:
+    :return: dict
+    """
+    c.execute("SELECT command_settings FROM settings WHERE command=?", (command,))
+    row = c.fetchone()
+    if row:
+        return row[0]
+    return {}
+
+
+def set_settings(command: str, settings) -> None:
+    """
+    Sets the settings for the specified command.
+    :param command:
+    :param settings:
+    :return:
+    """
+    c.execute("UPDATE settings SET command_settings=? WHERE command=?", (settings, command))
+    conn.commit()
+
 
 # conn.close()
