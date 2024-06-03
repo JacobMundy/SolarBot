@@ -1,6 +1,7 @@
 import discord
 import os
 from discord.ext import bridge
+from console_colors import FontColors
 
 # Add any cogs you want to load here,
 # should be names of the files in the cogs directory
@@ -23,9 +24,11 @@ async def on_message(message):
     if message.author == bot.user or len(message.content) == 0:
         return
 
-    print(f"Message sent in channel {message.channel}")
+    # print(f"Message sent in channel {message.channel}")
     if message.content[0] == "!":
-        print(f"{message.author} Requested Command: {message.content}")
+        print(f"{FontColors.OK_BLUE} "
+              f"{message.author} Requested Command: {message.content}"
+              f"{FontColors.END}")
 
 
 def run_bot():
