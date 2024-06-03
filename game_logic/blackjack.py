@@ -2,7 +2,7 @@ import random as rand
 import discord
 from discord.ui import Item
 from database import db_commands as database
-
+from console_colors import FontColors
 
 # DISCORD UI BELOW
 # noinspection PyUnusedLocal
@@ -147,7 +147,9 @@ class EndgameUI(discord.ui.View):
             await self.message.edit(content=self.message.content, view=None)
             self.stop()
         except discord.errors.NotFound:
-            print("Message was deleted/could not be found before timeout")
+            print(f"{FontColors.WARNING} "
+                  f"Message was deleted/could not be found before timeout"
+                  f"{FontColors.END}")
 
     @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
     async def restart_callback(self, button, interaction):
