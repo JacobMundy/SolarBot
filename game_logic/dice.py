@@ -1,5 +1,6 @@
 import random
 import discord
+from console_colors import FontColors
 
 
 class DiceView(discord.ui.View):
@@ -13,7 +14,9 @@ class DiceView(discord.ui.View):
             await self.ctx.edit(view=None)
             self.stop()
         except discord.errors.NotFound:
-            print("Message was deleted/could not be found before timeout")
+            print(f"{FontColors.WARNING}"
+                  f"Message was deleted/could not be found before timeout"
+                  f"{FontColors.END}")
 
     async def roll(self, respond=True):
         if self.sides < 1:
