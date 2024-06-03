@@ -3,6 +3,7 @@ from discord.ext import bridge
 from discord.ext import commands
 from game_logic import blackjack
 from game_logic.dice import DiceView
+import random
 from database import db_commands as database
 
 
@@ -71,6 +72,19 @@ class Games(commands.Cog):
         :return:
         """
         await start_dice(ctx, sides)
+
+    @bridge.bridge_command(name="coinflip",
+                           aliases=["cf","flip"],
+                           description="Flip a coin",
+                           test_guild="1241262568014610482")
+    async def coinflip(self, ctx: discord.ApplicationContext):
+        """
+        Flips a coin and responds with the result.
+        :param ctx:
+        :return:
+        """
+        result = random.choice(["Heads", "Tails"])
+        await ctx.respond(f"{result}")
 
 
 def setup(bot):
