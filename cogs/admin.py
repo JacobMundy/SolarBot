@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from database import db_commands as database
+from console_colors import FontColors
 
 
 class Admin(commands.Cog):
@@ -33,7 +34,9 @@ class Admin(commands.Cog):
                 await ctx.channel.purge(limit=amount)
 
         except discord.errors.Forbidden:
-            print("Admin command invoked without permissions.")
+            print(f" {FontColors.WARNING} "
+                  f"Admin command invoked without permissions. "
+                  f"{FontColors.END}")
             await ctx.respond("I don't have the permissions to do that!")
 
     @commands.Cog.listener()
@@ -52,11 +55,15 @@ class Admin(commands.Cog):
 
         try:
             await channel.send(f"Message deleted in {message.channel} by {message.author}: {message.content}")
-        except discord.errors.Forbidden and AttributeError:
+        except discord.errors.Forbidden or AttributeError:
             if channel is None:
-                print(f"\033[93m Channel {preferred_channel} not found. \033[0m")
+                print(f"{FontColors.WARNING} "
+                      f"Channel {preferred_channel} not found. "
+                      f"{FontColors.END}")
             else:
-                print("\033[93m Bot does not have permissions to send messages in the specified channel. \033[0m")
+                print(f"{FontColors.WARNING} "
+                      f"Bot does not have permissions to send messages in the channel {preferred_channel}. "
+                      f"{FontColors.END}")
 
     @commands.command(name="toggle_logs",
                       description="Toggle logging of deleted messages",
