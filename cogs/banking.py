@@ -39,7 +39,8 @@ class Banking(commands.Cog):
             await ctx.respond("You have claimed your daily reward of 1000! \n"
                               "Your balance is now: " + str(database.get_balance(str(ctx.author.id))) + "\n")
         else:
-            await ctx.respond("You have already claimed your daily reward!")
+            await ctx.respond(f"You have already claimed your daily reward! \n"
+                              f"Try again in {database.get_time_until_next_daily(str(ctx.author.id))} hour(s).")
 
 
 def setup(bot):
