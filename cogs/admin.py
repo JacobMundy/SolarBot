@@ -98,15 +98,14 @@ class Admin(commands.Cog):
             embed.set_thumbnail(url=message.author.avatar.url)
             await channel.send(embed=embed)
 
-        except discord.errors.Forbidden or AttributeError:
-            if channel is None:
-                print(f"{FontColors.WARNING} "
-                      f"Channel {preferred_channel} not found. "
-                      f"{FontColors.END}")
-            else:
-                print(f"{FontColors.WARNING} "
-                      f"Bot does not have permissions to send messages in the channel {preferred_channel}. "
-                      f"{FontColors.END}")
+        except AttributeError:
+            print(f"{FontColors.WARNING} "
+                  f"Channel {preferred_channel} not found. "
+                  f"{FontColors.END}")
+        except discord.errors.Forbidden:
+            print(f"{FontColors.WARNING} "
+                  f"Bot does not have permissions to send messages in the channel {preferred_channel}. "
+                  f"{FontColors.END}")
 
     @commands.command(name="toggle_logs",
                       description="Toggle logging of deleted messages",
