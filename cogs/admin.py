@@ -29,15 +29,50 @@ class Admin(commands.Cog):
                 def check(message):
                     return message.author.id == user_id
 
-                await ctx.channel.purge(limit=amount, check=check)
+                confirmation = await ctx.respond(f"You are about to delete {amount} messages by user {user_id}. \n"
+                                                 f"Proceed? (y/n)")
+
+                try:
+                    response = await self.bot.wait_for("message", check=check, timeout=30)
+                    if response.content.lower() != "y":
+                        await confirmation.delete()
+                        return
+                    await ctx.channel.purge(limit=amount + 3, check=check)
+                except TimeoutError:
+                    await confirmation.delete()
             else:
-                await ctx.channel.purge(limit=amount)
+                confirmation = await ctx.respond(f"You are about to delete {amount} messages. \n"
+                                                 f"Proceed? (y/n)")
+                try:
+                    response = await self.bot.wait_for("message", timeout=30)
+                    if response.content.lower() != "y":
+                        await confirmation.delete()
+                        return
+                    await ctx.channel.purge(limit=amount + 3)
+                except TimeoutError:
+                    await confirmation.delete()
 
         except discord.errors.Forbidden:
             print(f" {FontColors.WARNING} "
                   f"Admin command invoked without permissions. "
                   f"{FontColors.END}")
             await ctx.respond("I don't have the permissions to do that!")
+
+    @commands.command(name="echo",
+                      description="Echo a message",
+                      test_guild="1241262568014610482")
+    async def echo(self, ctx, *, message: str):
+        """
+        Echo a message.
+        :param ctx:
+        :param message:
+        :return:
+        """
+        if not ctx.author.guild_permissions.manage_messages:
+            await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            return
+        await ctx.send(message)
+        await ctx.message.delete()
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
@@ -54,7 +89,15 @@ class Admin(commands.Cog):
             return
 
         try:
-            await channel.send(f"Message deleted in {message.channel} by {message.author}: {message.content}")
+            embed = discord.Embed(title="Message Deleted",
+                                  description=f"Message in {message.channel} by {message.author} has been deleted",
+                                  color=discord.Color.red())
+            embed.add_field(name="Message Content", value=message.content)
+            embed.set_footer(text=f"Message ID: {message.id} \n"
+                                  f"Message Date: {message.created_at}")
+            embed.set_thumbnail(url=message.author.avatar.url)
+            await channel.send(embed=embed)
+
         except discord.errors.Forbidden or AttributeError:
             if channel is None:
                 print(f"{FontColors.WARNING} "
