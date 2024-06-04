@@ -1,8 +1,6 @@
 import sqlite3
 import time
 import os
-# TODO: use ORM instead of raw SQL
-# TODO: separate the database commands into a separate file
 
 
 # Create a connection to the SQLite database
@@ -119,6 +117,27 @@ def claim_daily(user_id: str) -> bool:
         conn.commit()
         return True
     return False
+
+
+def get_time_until_next_daily(user_id: str) -> int:
+    """
+    Returns the time until the user can claim the daily reward.
+    :param user_id:
+    :return: int
+    """
+    # Get the last claimed timestamp
+    c.execute("SELECT last_claimed FROM daily WHERE user=?", (user_id,))
+    row = c.fetchone()
+    if row:
+        last_claimed = row[0]
+    else:
+        last_claimed = 0
+
+    # Get the current timestamp
+    current_time = int(time.time())
+
+    # Calculate the time until the next daily reward
+    return 24 - (current_time - last_claimed) // 3600
 
 
 def get_settings(command: str) -> dict:
