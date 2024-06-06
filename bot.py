@@ -18,16 +18,16 @@ async def on_ready():
     print(f"We have logged in as {bot.user}")
 
 
-@bot.listen()
-async def on_message(message):
-
-    if message.author == bot.user or len(message.content) == 0:
-        return
-
-    # print(f"Message sent in channel {message.channel}")
-    if message.content[0] == "!":
+@bot.event
+async def on_command(ctx):
+    cog_name = ctx.command.cog_name if ctx.command.cog_name else "None"
+    if cog_name == "Admin":
+        print(f"{FontColors.OK_GREEN} "
+              f"Admin Command: {ctx.command} "
+              f"{FontColors.END}")
+    else:
         print(f"{FontColors.OK_BLUE} "
-              f"{message.author} Requested Command: {message.content}"
+              f"Command: {ctx.command} "
               f"{FontColors.END}")
 
 
