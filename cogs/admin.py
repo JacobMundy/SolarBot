@@ -20,45 +20,46 @@ class Admin(commands.Cog):
         :param user_id:
         :return:
         """
-        try:
-            if not ctx.author.guild_permissions.manage_messages:
-                response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
-                await response.delete(delay=20)
-                return
-
-            if user_id != 0:
-                def check(message):
-                    return message.author.id == user_id
-
-                confirmation = await ctx.respond(f"You are about to delete {amount} messages by user {user_id}. \n"
-                                                 f"Proceed? (y/n)")
-
-                try:
-                    response = await self.bot.wait_for("message", check=check, timeout=30)
-                    if response.content.lower() != "y":
-                        await confirmation.delete()
-                        return
-                    await ctx.channel.purge(limit=amount + 3, check=check)
-                except TimeoutError:
-                    await confirmation.delete()
-            else:
-                confirmation = await ctx.respond(f"You are about to delete {amount} messages. \n"
-                                                 f"Proceed? (y/n)")
-
-                try:
-                    response = await self.bot.wait_for("message", timeout=30)
-                    if response.content.lower() != "y":
-                        await confirmation.delete()
-                        return
-                    await ctx.channel.purge(limit=amount + 3)
-                except TimeoutError:
-                    await confirmation.delete()
-
-        except discord.errors.Forbidden:
+        if not ctx.author.guild_permissions.manage_messages:
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
+            return
+        if not ctx.guild.me.guild_permissions.manage_messages:
+            response = await ctx.respond("I don't have the permissions to do that!")
+            await response.delete(delay=20)
             print(f" {FontColors.WARNING} "
-                  f"Admin command invoked without permissions. "
+                  f"Admin command invoked without (bot) permissions. "
                   f"{FontColors.END}")
             await ctx.respond("I don't have the permissions to do that!")
+            return
+
+        if user_id != 0:
+            def check(message):
+                return message.author.id == user_id
+
+            confirmation = await ctx.respond(f"You are about to delete {amount} messages by user {user_id}. \n"
+                                             f"Proceed? (y/n)")
+
+            try:
+                response = await self.bot.wait_for("message", check=check, timeout=30)
+                if response.content.lower() != "y":
+                    await confirmation.delete()
+                    return
+                await ctx.channel.purge(limit=amount + 3, check=check)
+            except TimeoutError:
+                await confirmation.delete()
+        else:
+            confirmation = await ctx.respond(f"You are about to delete {amount} messages. \n"
+                                             f"Proceed? (y/n)")
+
+            try:
+                response = await self.bot.wait_for("message", timeout=30)
+                if response.content.lower() != "y":
+                    await confirmation.delete()
+                    return
+                await ctx.channel.purge(limit=amount + 3)
+            except TimeoutError:
+                await confirmation.delete()
 
     @commands.command(name="echo",
                       description="Echo a message",
@@ -153,6 +154,40 @@ class Admin(commands.Cog):
 
         database.set_settings("log_deleted_messages_channel", channel_name)
         await ctx.respond(f"Logging of deleted messages set to {channel_name}.")
+
+    @commands.command(name="kick",
+                      description="Kick a user",
+                      test_guild="1241262568014610482")
+    async def kick_user(self, ctx, user: discord.User, *, reason: str = "No reason provided"):
+        """
+        Kick a user.
+        :param ctx:
+        :param user:
+        :param reason:
+        :return:
+        """
+        if not ctx.author.guild_permissions.kick_members:
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
+            return
+        # Check if the bot has the permissions to kick members,
+        # so we don't send a message to the user if the bot can't kick them
+        if not ctx.guild.me.guild_permissions.kick_members:
+            response = await ctx.respond("I don't have the permissions to do that!")
+            await response.delete(delay=20)
+            return
+
+        # If the bot doesn't share a server with the user it
+        # won't be able to send a message to them
+        try:
+            await user.send(f"You have been kicked from {ctx.guild} for {reason}.")
+            await ctx.guild.kick(user, reason=reason)
+            await ctx.respond(f"{user} has been kicked for {reason}.")
+
+        except Exception as e:
+            print(f"{FontColors.FAIL} "
+                  f"Error: {e} "
+                  f"{FontColors.END}")
 
 
 def setup(bot):
