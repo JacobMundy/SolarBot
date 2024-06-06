@@ -31,6 +31,14 @@ async def on_message(message):
               f"{FontColors.END}")
 
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
+        print(f"{FontColors.WARNING} "
+              f"Missing required argument in command: {ctx.command}"
+              f"{FontColors.END}")
+
+
 def run_bot():
     for cog in cogs_list:
         bot.load_extension(f"cogs.{cog}")
