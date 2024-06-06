@@ -22,7 +22,8 @@ class Admin(commands.Cog):
         """
         try:
             if not ctx.author.guild_permissions.manage_messages:
-                await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+                response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+                await response.delete(delay=20)
                 return
 
             if user_id != 0:
@@ -43,6 +44,7 @@ class Admin(commands.Cog):
             else:
                 confirmation = await ctx.respond(f"You are about to delete {amount} messages. \n"
                                                  f"Proceed? (y/n)")
+
                 try:
                     response = await self.bot.wait_for("message", timeout=30)
                     if response.content.lower() != "y":
@@ -69,7 +71,8 @@ class Admin(commands.Cog):
         :return:
         """
         if not ctx.author.guild_permissions.manage_messages:
-            await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
             return
         await ctx.send(message)
         await ctx.message.delete()
@@ -117,7 +120,8 @@ class Admin(commands.Cog):
         :return:
         """
         if not ctx.author.guild_permissions.manage_messages:
-            await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
             return
 
         if database.get_settings("log_deleted_messages") == 1:
@@ -138,7 +142,8 @@ class Admin(commands.Cog):
         :return:
         """
         if not ctx.author.guild_permissions.manage_messages:
-            await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
             return
 
         channel = discord.utils.get(ctx.guild.channels, name=channel_name)
