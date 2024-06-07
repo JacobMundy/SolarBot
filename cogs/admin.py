@@ -89,7 +89,6 @@ class Admin(commands.Cog):
         preferred_channel = database.get_settings("log_deleted_messages_channel")
         channel = discord.utils.get(message.guild.channels, name=preferred_channel)
         if logs_enabled == 0 or message.channel == channel:
-            print("Logging of deleted messages is disabled.")
             return
 
         try:
@@ -154,6 +153,57 @@ class Admin(commands.Cog):
 
         database.set_settings("log_deleted_messages_channel", channel_name)
         await ctx.respond(f"Logging of deleted messages set to {channel_name}.")
+
+    @commands.command(name="blacklist_channel",
+                      description="Blacklist a channel from bot commands",
+                      test_guild="1241262568014610482")
+    async def blacklist_channel(self, ctx: discord.ApplicationContext, channel_id: int):
+        """
+        Blacklist a channel from bot commands.
+        :param ctx:
+        :param channel_id:
+        :return:
+        """
+        channel = self.bot.get_channel(channel_id)
+        channel_name = channel.name if channel else "Unknown Channel"
+
+        if not ctx.author.guild_permissions.manage_channels:
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
+            return
+
+        if database.is_blacklisted_channel(str(channel_id)):
+            print("Channel NOT blacklisted.")
+            await ctx.respond(f"{channel_name} is already blacklisted.")
+            return
+
+        database.add_blacklisted_channel(str(channel_id))
+        await ctx.respond(f"{channel_name} has been blacklisted from bot commands.")
+
+    @commands.command(name="unblacklist_channel",
+                      description="Unblacklist a channel from bot commands",
+                      test_guild="1241262568014610482")
+    async def unblacklist_channel(self, ctx: discord.ApplicationContext, channel_id: int):
+        """
+        Unblacklist a channel from bot commands.
+        :param ctx:
+        :param channel_id:
+        :return:
+        """
+        channel = self.bot.get_channel(channel_id)
+        channel_name = channel.name if channel else "Unknown Channel"
+
+        if not ctx.author.guild_permissions.manage_channels:
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
+            return
+
+        if not database.is_blacklisted_channel(str(channel_id)):
+            await ctx.respond(f"{channel_name} is not blacklisted.")
+            return
+
+        database.remove_blacklisted_channel(str(channel_id))
+        await ctx.respond(f"{channel_name} has been unblacklisted from bot commands.")
 
     @commands.command(name="kick",
                       description="Kick a user",
