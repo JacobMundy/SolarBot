@@ -42,6 +42,30 @@ class Banking(commands.Cog):
             await ctx.respond(f"You have already claimed your daily reward! \n"
                               f"Try again in {database.get_time_until_next_daily(str(ctx.author.id))} hour(s).")
 
+    @bridge.bridge_command(name="transfer",
+                           description="transfer money to another user",
+                           test_guild="1241262568014610482")
+    async def transfer(self, ctx: discord.ApplicationContext, amount: int, user: discord.User):
+        """
+        Transfers money from the user to another user.
+        :param ctx:
+        :param amount:
+        :param user:
+        :return:
+        """
+        author_id = str(ctx.author.id)
+        transferee = str(user.id)
+
+        database.create_user(author_id)
+        database.create_user(transferee)
+        succeeded = database.transfer_money(author_id, transferee, amount)
+
+        if succeeded:
+            await ctx.respond(f"Transferred {amount} to {user.name}! \n"
+                              f"Your balance is now: {database.get_balance(author_id)}")
+        else:
+            await ctx.respond("You don't have enough money to transfer that amount!")
+
 
 def setup(bot):
     bot.add_cog(Banking(bot))
