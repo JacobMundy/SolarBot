@@ -19,13 +19,19 @@ c.execute('''CREATE TABLE IF NOT EXISTS bank
 c.execute('''CREATE TABLE IF NOT EXISTS daily
              (user TEXT PRIMARY KEY, last_claimed INTEGER)''')
 
+c.execute('''CREATE TABLE IF NOT EXISTS blacklisted_channels
+             (channel TEXT PRIMARY KEY)''')
+
 c.execute('''CREATE TABLE IF NOT EXISTS settings
              (command TEXT PRIMARY KEY, command_settings BLOB)''')
 
 c.execute("INSERT OR IGNORE INTO settings (command, command_settings) "
           "VALUES ('log_deleted_messages', 0)")
+
 c.execute("INSERT OR IGNORE INTO settings (command, command_settings) "
           "VALUES ('log_deleted_messages_channel', 'message-logs')")
+
+
 
 conn.commit()
 
@@ -89,6 +95,23 @@ def subtract_balance(user_id: str, amount: int):
     :return:
     """
     add_balance(user_id, -amount)
+
+
+def transfer_money(sender_id: str, receiver_id: str, amount: int) -> bool:
+    """
+    Transfers the specified amount from the sender to the receiver.
+    :param sender_id:
+    :param receiver_id:
+    :param amount:
+    :return:
+    """
+    sender_bal = get_balance(sender_id)
+    if sender_bal < amount:
+        return False
+
+    subtract_balance(sender_id, amount)
+    add_balance(receiver_id, amount)
+    return True
 
 
 def claim_daily(user_id: str) -> bool:
@@ -163,5 +186,35 @@ def set_settings(command: str, settings) -> None:
     c.execute("UPDATE settings SET command_settings=? WHERE command=?", (settings, command))
     conn.commit()
 
+
+def add_blacklisted_channel(channel_id: str) -> None:
+    """
+    Adds a channel to the blacklist.
+    :param channel_id:
+    :return:
+    """
+    c.execute("INSERT OR IGNORE INTO blacklisted_channels (channel) VALUES (?)", (channel_id,))
+    conn.commit()
+
+
+def remove_blacklisted_channel(channel_id: str) -> None:
+    """
+    Removes a channel from the blacklist.
+    :param channel_id:
+    :return:
+    """
+    c.execute("DELETE FROM blacklisted_channels WHERE channel=?", (channel_id,))
+    conn.commit()
+
+
+def is_blacklisted_channel(channel_id: str) -> bool:
+    """
+    Returns True if the channel is blacklisted, False otherwise.
+    :param channel_id:
+    :return: bool
+    """
+    c.execute("SELECT * FROM blacklisted_channels WHERE channel=?", (channel_id,))
+    row = c.fetchone()
+    return row is not None
 
 # conn.close()
