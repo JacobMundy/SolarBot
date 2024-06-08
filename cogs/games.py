@@ -1,7 +1,7 @@
 import discord
 from discord.ext import bridge
 from discord.ext import commands
-from game_logic import blackjack
+from game_logic import blackjack, fishing
 from game_logic.dice import DiceView
 import random
 from database import db_commands as database
@@ -74,7 +74,7 @@ class Games(commands.Cog):
         await start_dice(ctx, sides)
 
     @bridge.bridge_command(name="coinflip",
-                           aliases=["cf","flip"],
+                           aliases=["cf", "flip"],
                            description="Flip a coin",
                            test_guild="1241262568014610482")
     async def coinflip(self, ctx: discord.ApplicationContext):
@@ -85,6 +85,19 @@ class Games(commands.Cog):
         """
         result = random.choice(["Heads", "Tails"])
         await ctx.respond(f"{result}")
+
+    @bridge.bridge_command(name="fish",
+                           aliases=["cast"],
+                           description="Go fishing",
+                           test_guild="1241262568014610482")
+    async def fish(self, ctx: discord.ApplicationContext):
+        """
+        Starts a game of fishing.
+        :param ctx:
+        :return:
+        """
+        view = fishing.FishingView(ctx)
+        await view.start_game()
 
 
 def setup(bot):
