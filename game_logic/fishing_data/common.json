@@ -1,0 +1,23 @@
+{
+  "Pompano": {
+    "name": "Pompano",
+    "weight": 5,
+    "length": 12,
+    "value": 10,
+    "image": "pompano.jpg"
+  },
+  "Spotted Seatrout": {
+    "name": "Spotted Seatrout",
+    "weight": 3,
+    "length": 23,
+    "value": 8,
+    "image": "spotted_sea_trout.jpg"
+  },
+  "Cisco": {
+    "name": "Cisco",
+    "weight": 4,
+    "length": 13,
+    "value": 4,
+    "image": "cisco.jpg"
+  }
+}
