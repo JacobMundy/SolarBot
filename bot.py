@@ -49,6 +49,10 @@ async def on_command_error(ctx, error):
               f"{FontColors.END}")
         await ctx.respond(f"You are missing a required argument! \n"
                           f"Command Arguments: {str(params)}")
+    else:
+        print(f"{FontColors.FAIL} "
+              f"Error in command: {ctx.command}, error: {error}"
+              f"{FontColors.END}")
 
 
 @bot.check
