@@ -3,6 +3,57 @@ import random
 import discord
 import os
 import json
+import math
+
+from discord.ui import Button, View
+
+# BELOW IS THE CODE FOR THE INVENTORY VIEW
+class InventoryView(View):
+    def __init__(self, ctx, inventory):
+        super().__init__()
+        self.ctx = ctx
+        self.inventory = inventory
+        self.page = 0
+        self.embed = discord.Embed(title="Inventory", color=discord.Color.blue())
+        avatar_url = self.get_avatar_url()
+        self.embed.set_author(name=ctx.author.display_name, icon_url=avatar_url)
+        self.update_embed()
+
+    def get_avatar_url(self) -> str:
+        """
+        Returns the avatar URL of the user.
+        """
+        if self.ctx.author.avatar:
+            return str(self.ctx.author.avatar.url)
+        else:
+            return f"https://cdn.discordapp.com/embed/avatars/{0}.png"
+
+    def get_page(self):
+        return self.inventory[self.page*5:(self.page+1)*5]
+
+    def update_embed(self):
+        self.embed.clear_fields()
+        total_pages = math.ceil(len(self.inventory) / 5)
+        self.embed.set_footer(text=f"Page {self.page+1}/{total_pages}")
+        page_items = self.get_page()
+        for item in page_items:
+            self.embed.add_field(name=item['name'], value=f"Weight: {item['weight']}, Value: {item['value']}", inline=False)
+
+    @discord.ui.button(label='Previous', style=discord.ButtonStyle.secondary)
+    async def previous_button(self, button: Button, interaction: discord.Interaction):
+        if self.page > 0:
+            self.page -= 1
+            self.update_embed()
+            await interaction.response.edit_message(embed=self.embed)
+
+    @discord.ui.button(label='Next', style=discord.ButtonStyle.secondary)
+    async def next_button(self, button: Button, interaction: discord.Interaction):
+        if (self.page + 1) * 5 < len(self.inventory):
+            self.page += 1
+            self.update_embed()
+            await interaction.response.edit_message(embed=self.embed)
+
+# BELOW IS THE CODE FOR THE FISHING LOGIC
 
 # Define the path to the file
 file_path = "database/fishing_inventory.json"
