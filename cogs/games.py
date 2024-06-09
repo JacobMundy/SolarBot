@@ -1,3 +1,5 @@
+import json
+
 import discord
 from discord.ext import bridge
 from discord.ext import commands
@@ -28,7 +30,9 @@ async def start_blackjack(ctx: discord.ApplicationContext, bet_amount: int):
     blackjack_game = blackjack.Game(2, decks=1)
     discord_player = blackjack.DiscordPlayer()
     blackjack_game.deal_cards()
-    view = blackjack.BlackjackView(player_object=discord_player, game_object=blackjack_game, bet_amount=bet_amount)
+    view = blackjack.BlackjackView(player_object=discord_player,
+                                   game_object=blackjack_game,
+                                   bet_amount=bet_amount)
     ctx = await ctx.respond("Starting a game of blackjack!", view=view)
     await view.start_game(ctx)
 
@@ -98,6 +102,28 @@ class Games(commands.Cog):
         """
         view = fishing.FishingView(ctx)
         await view.start_game()
+
+    @bridge.bridge_command(name="inventory",
+                           description="Check your inventory",
+                           test_guild="1241262568014610482")
+    async def inventory(self, ctx: discord.ApplicationContext):
+        """
+        Responds with the user's inventory.
+        :param ctx:
+        :return:
+        """
+        user_id = str(ctx.author.id)
+        fishing_inventory = "database/fishing_inventory.json"
+        with open(fishing_inventory, 'r') as inventory_loader:
+            inventory = json.load(inventory_loader).get(user_id, None)
+        inventory_loader.close()
+
+
+        if not inventory:
+            await ctx.respond("You don't have any items in your inventory!")
+        else:
+            view = fishing.InventoryView(ctx, inventory)
+            await ctx.send(embed=view.embed, view=view)
 
 
 def setup(bot):
