@@ -3,35 +3,40 @@
     "name": "Marlin",
     "weight": 200,
     "length": 132,
-    "price": 5000,
-    "image": "marlin.png"
+    "value": 5000,
+    "image": "marlin.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249717460089831566/marlin.png?ex=66685195&is=66670015&hm=9bda18e65caf99e0f987ef25a36599d663855525ecd74acda1700c8664ceda45&"
   },
   "Swordfish": {
     "name": "Swordfish",
     "weight": 300,
     "length": 120,
-    "price": 2000,
-    "image": "swordfish.png"
+    "value": 2000,
+    "image": "swordfish.png",
+    "link": "https://puzzles.mit.edu/puzzle/www/2021/static/puzzle_files/ff104bc5ac34ee68/swordfish_tmp.png"
     },
   "Sailfish": {
     "name": "Sailfish",
     "weight": 120,
     "length": 84,
-    "price": 3500,
-    "image": "sailfish.png"
+    "value": 3500,
+    "image": "sailfish.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249717620203323432/sailfish.png?ex=666851bb&is=6667003b&hm=ae85bcfce811de56aafe1a37db650ef40e56a4471b5c505f6fdb72f459fce004&"
   },
   "Forktail Catfish": {
     "name": "Forktail Catfish",
     "weight": 25,
     "length": 15,
-    "price": 1500,
-    "image": "forktail_catfish.png"
+    "value": 1500,
+    "image": "forktail_catfish.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249717707327275017/forktail_catfish.png?ex=666851d0&is=66670050&hm=ca1441ae014b2c92e436160f1b99020ed56d25413dedc7bfa62fdd14842b1eb4&"
   },
   "Longtail Tuna": {
     "name": "Longtail Tuna",
     "weight": 70,
     "length": 60,
-    "price": 3000,
-    "image": "longtail_tuna.png"
+    "value": 3000,
+    "image": "longtail_tuna.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249717872142581852/longtail_tuna.png?ex=666851f7&is=66670077&hm=07bbd48ebb11154f53d20e965a7d15290c0f7deb0469d74aab1ae982ac973749&"
   }
 }

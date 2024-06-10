@@ -3,7 +3,8 @@
     "name": "Eye of Ra",
     "weight": 500,
     "length": 2,
-    "price": 1,
-    "image": "eye_of_ra.png"
+    "value": 1,
+    "image": "eye_of_ra.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249717987372699700/eye_of_ra.png?ex=66685212&is=66670092&hm=2527ac99960be65170af1acac01dac923b7a349594f8cf9202f523124559030f&"
   }
 }

@@ -3,36 +3,40 @@
     "name": "Eel",
     "weight": 14,
     "length": 36,
-    "price": 200,
-    "image": "eel.png"
+    "value": 200,
+    "image": "eel.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249716473786536027/eel.png?ex=666850a9&is=6666ff29&hm=e1c9edb7bc3eddda6ae17167954f0d2af81c99c438d8e3ba7e61544bfcc7c00a&"
   },
   "Barred Javelin": {
     "name": "Barred Javelin",
     "weight": 5,
     "length": 18,
-    "price": 150,
-    "image": "barred_javelin.png"
+    "value": 150,
+    "image": "barred_javelin.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249716658893885490/barred_javelin.png?ex=666850d6&is=6666ff56&hm=5204ccd97b774fc3ba07bc4355bc93e8c537482b38d075baee008ac4b36dc22e"
   },
   "Walleye": {
     "name": "Walleye",
     "weight": 24,
     "length": 36,
-    "price": 300,
-    "image": "walleye.png"
+    "value": 300,
+    "image": "walleye.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249716822337523733/walleye.png?ex=666850fd&is=6666ff7d&hm=69134d6700e92d192fca9bd2ebc6dc65e5eb9ae39a9eb4ca85de2691806ca928&"
   },
   "Sea Bass": {
     "name": "Sea Bass",
     "weight": 5,
     "length": 14,
-    "price": 250,
-    "image": "sea_bass.png"
+    "value": 250,
+    "image": "sea_bass.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249717224026013726/sea_bass.png?ex=6668515c&is=6666ffdc&hm=a0f706a5796f91d71f6060f590d6b8795d547574b3c758c590d35b507db5bc7f&"
   },
   "Mackerel Tuna": {
     "name": "Mackerel Tuna",
     "weight": 17,
     "length": 24,
-    "price": 400,
-    "image": "mackerel_tuna.png"
+    "value": 400,
+    "image": "mackerel_tuna.png",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249717356717015080/mackerel_tuna.png?ex=6668517c&is=6666fffc&hm=0c8acb09399ab4a8f77112adea932a78946efceed8794b5c4a3bc58f665d404e&"
   }
-
 }

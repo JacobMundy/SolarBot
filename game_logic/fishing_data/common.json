@@ -4,34 +4,39 @@
     "weight": 5,
     "length": 12,
     "value": 10,
-    "image": "pompano.jpg"
+    "image": "pompano.jpg",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249715264195399783/pompano.png?ex=66684f89&is=6666fe09&hm=4ec8a1861138e5dc995b5ab4cab25ff0d1944bb4a91062bf5a1abfb9b5becd77&"
   },
   "Spotted Seatrout": {
     "name": "Spotted Seatrout",
     "weight": 3,
     "length": 23,
     "value": 8,
-    "image": "spotted_sea_trout.jpg"
+    "image": "spotted_sea_trout.jpg",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249715961913806919/spotted_seatrout.png?ex=6668502f&is=6666feaf&hm=00fa0bace7d50635609047f8786c304798d7bc4cba21a0d0a3241cc2479891d4&"
   },
   "Cisco": {
     "name": "Cisco",
     "weight": 4,
     "length": 13,
     "value": 4,
-    "image": "cisco.jpg"
+    "image": "cisco.jpg",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249716076174901269/cisco.png?ex=6668504b&is=6666fecb&hm=0c32f4279cd9849cc9a15efde1b9d7cff30f310c8ab1066e227771b3db4be508&"
   },
   "Salmon": {
     "name": "Salmon",
     "weight": 10,
     "length": 29,
     "value": 12,
-    "image": "salmon.jpg"
+    "image": "salmon.jpg",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249716222606708756/salmon.png?ex=6668506e&is=6666feee&hm=6e38b482686af907a3da30b0b9975de4a223600bdf462d68f3a28d3b8703a7cc&"
   },
   "Archerfish": {
     "name": "Archerfish",
     "weight": 4,
     "length": 11,
     "value": 2,
-    "image": "archerfish.jpg"
-  },
+    "image": "archerfish.jpg",
+    "link": "https://cdn.discordapp.com/attachments/1249707528208650370/1249716315736768632/archerfish.png?ex=66685084&is=6666ff04&hm=a645c1c2b9e65a1a592e678e3df19824399734f062d3cde766ca78fc46709518&"
+  }
 }
