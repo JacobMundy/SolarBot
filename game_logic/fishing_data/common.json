@@ -19,5 +19,19 @@
     "length": 13,
     "value": 4,
     "image": "cisco.jpg"
-  }
+  },
+  "Salmon": {
+    "name": "Salmon",
+    "weight": 10,
+    "length": 29,
+    "value": 12,
+    "image": "salmon.jpg"
+  },
+  "Archerfish": {
+    "name": "Archerfish",
+    "weight": 4,
+    "length": 11,
+    "value": 2,
+    "image": "archerfish.jpg"
+  },
 }
