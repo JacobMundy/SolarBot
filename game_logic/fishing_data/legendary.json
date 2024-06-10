@@ -1,0 +1,9 @@
+{
+  "Eye of Ra": {
+    "name": "Eye of Ra",
+    "weight": 500,
+    "length": 2,
+    "price": 1,
+    "image": "eye_of_ra.png"
+  }
+}

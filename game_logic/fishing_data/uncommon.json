@@ -1,0 +1,38 @@
+{
+  "Eel": {
+    "name": "Eel",
+    "weight": 14,
+    "length": 36,
+    "price": 200,
+    "image": "eel.png"
+  },
+  "Barred Javelin": {
+    "name": "Barred Javelin",
+    "weight": 5,
+    "length": 18,
+    "price": 150,
+    "image": "barred_javelin.png"
+  },
+  "Walleye": {
+    "name": "Walleye",
+    "weight": 24,
+    "length": 36,
+    "price": 300,
+    "image": "walleye.png"
+  },
+  "Sea Bass": {
+    "name": "Sea Bass",
+    "weight": 5,
+    "length": 14,
+    "price": 250,
+    "image": "sea_bass.png"
+  },
+  "Mackerel Tuna": {
+    "name": "Mackerel Tuna",
+    "weight": 17,
+    "length": 24,
+    "price": 400,
+    "image": "mackerel_tuna.png"
+  }
+
+}

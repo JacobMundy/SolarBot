@@ -1,0 +1,37 @@
+{
+  "Marlin": {
+    "name": "Marlin",
+    "weight": 200,
+    "length": 132,
+    "price": 5000,
+    "image": "marlin.png"
+  },
+  "Swordfish": {
+    "name": "Swordfish",
+    "weight": 300,
+    "length": 120,
+    "price": 2000,
+    "image": "swordfish.png"
+    },
+  "Sailfish": {
+    "name": "Sailfish",
+    "weight": 120,
+    "length": 84,
+    "price": 3500,
+    "image": "sailfish.png"
+  },
+  "Forktail Catfish": {
+    "name": "Forktail Catfish",
+    "weight": 25,
+    "length": 15,
+    "price": 1500,
+    "image": "forktail_catfish.png"
+  },
+  "Longtail Tuna": {
+    "name": "Longtail Tuna",
+    "weight": 70,
+    "length": 60,
+    "price": 3000,
+    "image": "longtail_tuna.png"
+  }
+}
