@@ -15,15 +15,26 @@ class Banking(commands.Cog):
                            aliases=["bal"],
                            description="check your balance",
                            test_guild="1241262568014610482")
-    async def check_balance(self, ctx: discord.ApplicationContext):
+    async def check_balance(self, ctx: discord.ApplicationContext, user: discord.User = None):
         """
-        Responds with the user's balance.
+        Responds with balance of provided User.
+        If no user is provided, responds with the balance of the author.
         :param ctx:
+        :param user:
         :return:
         """
-        user_id = str(ctx.author.id)
-        database.create_user(user_id)
-        await ctx.respond("Your balance is: " + str(database.get_balance(user_id)))
+        if user is None:
+            user_id = str(ctx.author.id)
+            database.create_user(user_id)
+            await ctx.respond("Your balance is: " + str(database.get_balance(user_id)))
+        else:
+            try:
+                user_id = str(user.id)
+                database.create_user(user_id)
+                await ctx.respond(f"{user.name}'s balance is: " + str(database.get_balance(user_id)))
+            except Exception as e:
+                print(e)
+                await ctx.respond("User not found!")
 
     @bridge.bridge_command(name="daily",
                            description="claim your daily reward",
