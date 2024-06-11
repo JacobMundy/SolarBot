@@ -1,11 +1,14 @@
 import asyncio
 import random
+import time
+
 import discord
 import os
 import json
 import math
 
 from discord.ui import Button, View
+import console_colors
 
 # BELOW IS THE CODE FOR THE INVENTORY VIEW
 class InventoryView(View):
@@ -39,14 +42,18 @@ class InventoryView(View):
         for item in page_items:
             self.embed.add_field(name=item['name'], value=f"Weight: {item['weight']}, Value: {item['value']}", inline=False)
 
-    @discord.ui.button(label='Previous', style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label='Prev', style=discord.ButtonStyle.blurple)
     async def previous_button(self, button: Button, interaction: discord.Interaction):
         if self.page > 0:
             self.page -= 1
             self.update_embed()
             await interaction.response.edit_message(embed=self.embed)
 
-    @discord.ui.button(label='Next', style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label='✖', style=discord.ButtonStyle.danger)
+    async def close_button(self, button: Button, interaction: discord.Interaction):
+        await interaction.response.edit_message(delete_after=0)
+
+    @discord.ui.button(label='Next', style=discord.ButtonStyle.blurple)
     async def next_button(self, button: Button, interaction: discord.Interaction):
         if (self.page + 1) * 5 < len(self.inventory):
             self.page += 1
@@ -89,10 +96,20 @@ class FishingView(discord.ui.View):
             await self.ctx.edit(view=None)
             self.stop()
         except discord.errors.NotFound:
-            print(f"Message was deleted/could not be found before timeout")
+            print(f"{console_colors.FontColors.WARNING}"
+                  f"Message was deleted/could not be found before timeout"
+                  f"{console_colors.FontColors.END}")
 
     async def start_game(self):
-        await self.ctx.respond("You cast your line into the water...", view=self)
+        """
+        Starts the fishing game.
+        :return:
+        """
+        embed = discord.Embed(title="Fishing",
+                              description="You cast your line into the water...",
+                              color=discord.Color.blue())
+
+        await self.ctx.respond(embed=embed, view=self)
         # Setup Timer to catch fish
         wait_time = random.randint(1,5)
         countdown = asyncio.create_task(asyncio.sleep(wait_time))
@@ -103,8 +120,9 @@ class FishingView(discord.ui.View):
         done, pending = await asyncio.wait({countdown, interaction_task}, return_when=asyncio.FIRST_COMPLETED)
 
         if countdown in done:
-            #TODO: Planned "uncommon_fish", "rare_fish", "legendary_fish"
-            fish_rarity = random.choice(["common"])
+            fish_rarity = random.choices(["common", "uncommon", "rare", "legendary"],
+                                         weights=[0.3, 0.6, 0.08, 0.02],
+                                         k=1)[0]
             with open(f"game_logic/fishing_data/{fish_rarity}.json", 'r') as random_fish:
                 fish_data = json.load(random_fish)
                 keys = list(fish_data.keys())
@@ -124,19 +142,68 @@ class FishingView(discord.ui.View):
                 self.fish_on_line = modified_fish
                 random_fish.close()
 
-            await self.ctx.edit(content=f"You feel a tug on the line... It seems like a {self.fish_on_line["name"]}!",
-                                view=self)
+            weight = self.fish_on_line["weight"]
+            tug_message = "You feel a tug on the line..."
+            time_to_reel = random.randint(1, 5)
+            match weight:
+                case weight if weight < 1:
+                    tug_message = "You feel a light tug on the line..."
+                    time_to_reel = random.randint(20, 30)
+                case weight if weight > 5:
+                    tug_message = "You feel a heavy tug on the line..."
+                    time_to_reel = random.randint(10, 20)
+                case weight if weight > 10:
+                    tug_message = "You struggle against this fish!"
+                    time_to_reel = random.randint(5, 10)
+                case weight if weight > 20:
+                    tug_message = "You are nearly pulled into the water!"
+                    time_to_reel = 5
+
+            time_since_epoch = int(time.time())
+
+            embed = discord.Embed(title="Fishing",
+                                  description=tug_message,
+                                  color=discord.Color.blue())
+            embed.add_field(name="Time to Reel", value=f"<t:{time_since_epoch + time_to_reel}:R>")
+            await self.ctx.edit(embed=embed, view=self)
             interaction_task.cancel()
 
-        if interaction_task in done:
-            countdown.cancel()
-            await self.ctx.edit(content="You reeled in too early!", view=None)
+            countdown = asyncio.create_task(asyncio.sleep(time_to_reel))
+            interaction_task = asyncio.create_task(self.ctx.bot.wait_for('interaction'))
+
+            done, pending = await asyncio.wait({countdown, interaction_task},
+                                               return_when=asyncio.FIRST_COMPLETED)
+
+            if countdown in done:
+                embed = discord.Embed(title="Fishing",
+                                      description="The fish got away!",
+                                      color=discord.Color.red())
+                await self.ctx.edit(embed=embed, view=None)
 
 
     @discord.ui.button(label="Reel in", style=discord.ButtonStyle.primary)
     async def reel_in_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+        """
+        'Reels' in the fish if it exists and displays the fish data.
+        If the fish doesn't exist, displays a failure message.
+        :param button:
+        :param interaction:
+        :return:
+        """
         if self.fish_on_line is not None:
-            await self.ctx.edit(content=f"You reeled in a {self.fish_on_line["name"]}!", view=None)
+            if self.fish_on_line["name"][0].lower() in 'aeiou':
+                article = "an"
+            else:
+                article = "a"
+
+            embed = discord.Embed(title="Fishing",
+                                  description=f"You reel in {article} {self.fish_on_line["name"]}!",
+                                  color=discord.Color.green())
+            embed.add_field(name="Length", value=f"{self.fish_on_line['length']} inches")
+            embed.add_field(name="Weight", value=f"{self.fish_on_line['weight']} lbs")
+            embed.add_field(name="Value", value=f"${self.fish_on_line['value']}")
+            embed.set_image(url=self.fish_on_line["link"])
+            await self.ctx.edit(embed=embed, view=None)
 
             fisherman_id = str(self.ctx.author.id)
             if fisherman_id in self.player_inventories:
@@ -148,4 +215,7 @@ class FishingView(discord.ui.View):
                 json.dump(self.player_inventories, inventory)
 
         else:
-            await self.ctx.edit(content="You didnt catch anything!", view=None)
+            embed = discord.Embed(title="Fishing",
+                                  description="You reeled too early!",
+                                  color=discord.Color.red())
+            await self.ctx.edit(embed=embed, view=None)
