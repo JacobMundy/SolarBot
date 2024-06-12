@@ -12,6 +12,25 @@ class Fishing(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        # Setup choices for slash version of the commands
+        # (their options are set in the setup function)
+        self.item_choices = []
+        self.item_types = set()
+
+        fishing_inventory = "database/fishing_inventory.json"
+        with open(fishing_inventory, 'r') as inventory_loader:
+            whole_inventory = json.load(inventory_loader)
+        inventory_loader.close()
+
+        for user_id, player_inventory in whole_inventory.items():
+            if player_inventory:
+                item_choices = [discord.OptionChoice(name=f"Name: {item["name"]} "
+                                                          f"Weight: {item['weight']}, "
+                                                          f"Value: {item['value']}",
+                                                     value=item['name'].lower()) for item in player_inventory]
+                self.item_types.update(item['name'].lower() for item in player_inventory)
+                self.item_choices.extend(item_choices)
+
     @bridge.bridge_command(name="fish",
                            aliases=["cast"],
                            description="Go fishing",
@@ -50,7 +69,7 @@ class Fishing(commands.Cog):
     @bridge.bridge_command(name="sell",
                            description="Sell an item from your inventory",
                            test_guild="1241262568014610482")
-    async def sell_item(self, ctx: discord.ApplicationContext, item: str):
+    async def sell_item(self, ctx: discord.ApplicationContext, *, item: str):
         """
         Sells a specific item from the user's inventory.
         :param ctx:
@@ -63,6 +82,7 @@ class Fishing(commands.Cog):
             whole_inventory = json.load(inventory_loader)
             player_inventory = whole_inventory.get(user_id, None)
         inventory_loader.close()
+
 
         if not player_inventory:
             await ctx.respond("You don't have any items in your inventory!")
@@ -77,7 +97,7 @@ class Fishing(commands.Cog):
         if len(matching_items) == 1:
             item_info = matching_items[0]
             item_value = item_info['value']
-            player_inventory[item].remove(item_info)
+            player_inventory.remove(item_info)
             database.add_balance(user_id, item_value)
         else:
             embed = discord.Embed(title="Matching Items", color=discord.Color.blurple())
@@ -104,16 +124,16 @@ class Fishing(commands.Cog):
             player_inventory.remove(item_info)
             database.add_balance(user_id, item_value)
 
-            # Save the changes to the *whole* inventory
-            whole_inventory[user_id] = player_inventory
+        # Save the changes to the *whole* inventory
+        whole_inventory[user_id] = player_inventory
 
-            # Save the changes to the file and respond
-            with open(fishing_inventory, 'w') as inventory_saver:
-                json.dump(whole_inventory, inventory_saver)
-            inventory_saver.close()
+        # Save the changes to the file and respond
+        with open(fishing_inventory, 'w') as inventory_saver:
+            json.dump(whole_inventory, inventory_saver)
+        inventory_saver.close()
 
-            await ctx.respond(f"Sold {item} for {item_value}! \n"
-                              f"Your balance is now: {database.get_balance(user_id)}")
+        await ctx.respond(f"Sold {item} for {item_value}! \n"
+                          f"Your balance is now: {database.get_balance(user_id)}")
 
 
     @bridge.bridge_command(name="sellall",
@@ -178,4 +198,28 @@ class Fishing(commands.Cog):
                               f"Your balance is now: {database.get_balance(user_id)}")
 
 def setup(bot):
+    fishing_cog = Fishing(bot)
     bot.add_cog(Fishing(bot))
+
+    limited_items = fishing_cog.item_choices[:25]
+    limited_types = set(option.value for option in limited_items)
+
+    fishing_cog.sell_all_items.options = [
+        discord.Option(
+            name="item",
+            description="The type of fish you want to sell all of (leave blank to sell all items)",
+            type=str,
+            choices= limited_types,
+            required=False
+        )
+    ]
+
+    fishing_cog.sell_item.options = [
+        discord.Option(
+            name="item",
+            description="The item you want to sell",
+            type=str,
+            choices=limited_items,
+            required=True
+        )
+    ]
