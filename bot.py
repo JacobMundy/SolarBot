@@ -1,5 +1,6 @@
 import discord
 import os
+
 from dotenv import load_dotenv
 from discord.ext import bridge
 from console_colors import FontColors
@@ -40,21 +41,29 @@ async def on_command(ctx):
               f"Command: {ctx.command} "
               f"{FontColors.END}")
 
-
+# This will probably be moved to a cog in the future to handle more events
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
         param_list = ctx.command.clean_params.keys()
         params = ", ".join(param_list)
-        print(f"{FontColors.WARNING} "
-              f"Missing required argument in command: {ctx.command}, arguments: {params}"
-              f"{FontColors.END}")
-        await ctx.respond(f"You are missing a required argument! \n"
-                          f"Command Arguments: {str(params)}")
+        command = ctx.command.qualified_name
+        embed = discord.Embed(title="Missing required argument!",
+                              description=f"```{command}: {params}```",
+                              color=discord.Color.red())
+        await ctx.respond(embed=embed)
+
+    elif isinstance(error, discord.ext.commands.errors.UserNotFound):
+        embed = discord.Embed(title="User not found!",
+                              description="The user you are trying to find does not exist.",
+                              color=discord.Color.red())
+        await ctx.respond(embed=embed)
+
     else:
         print(f"{FontColors.FAIL} "
-              f"Error in command: {ctx.command}, error: {error}"
+              f"Error: {error} "
               f"{FontColors.END}")
+
 
 
 @bot.check
