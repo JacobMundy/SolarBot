@@ -25,16 +25,23 @@ class InventoryView(View):
     def get_avatar_url(self) -> str:
         """
         Returns the avatar URL of the user.
+        :return: str
         """
-        if self.ctx.author.avatar:
-            return str(self.ctx.author.avatar.url)
-        else:
-            return f"https://cdn.discordapp.com/embed/avatars/{0}.png"
+        ctx = self.ctx
+        return ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url
 
-    def get_page(self):
+    def get_page(self) -> list:
+        """
+        Returns the items on the current page.
+        :return: list
+        """
         return self.inventory[self.page*5:(self.page+1)*5]
 
     def update_embed(self):
+        """
+        Updates the embed with the current page of items.
+        :return:
+        """
         self.embed.clear_fields()
         total_pages = math.ceil(len(self.inventory) / 5)
         self.embed.set_footer(text=f"Page {self.page+1}/{total_pages}")
@@ -91,7 +98,7 @@ class FishingView(discord.ui.View):
         self.fish_on_line = None
         self.player_inventories = load_inventory()
 
-    async def on_timeout(self) -> None:
+    async def on_timeout(self):
         try:
             await self.ctx.edit(view=None)
             self.stop()

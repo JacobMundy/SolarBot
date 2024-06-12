@@ -98,7 +98,8 @@ class Admin(commands.Cog):
             embed.add_field(name="Message Content", value=message.content)
             embed.set_footer(text=f"Message ID: {message.id} \n"
                                   f"Message Date: {message.created_at}")
-            embed.set_thumbnail(url=message.author.avatar.url)
+            avatar = message.author.avatar.url if message.author.avatar else message.author.default_avatar.url
+            embed.set_thumbnail(url=avatar)
             await channel.send(embed=embed)
 
         except AttributeError:
