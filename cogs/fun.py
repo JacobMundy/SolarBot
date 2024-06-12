@@ -4,7 +4,7 @@ from discord.ext import commands, bridge
 
 
 class Responses(commands.Cog):
-    def __init__(self, received_bot) -> None:
+    def __init__(self, received_bot):
         self.bot = received_bot
 
     @bridge.bridge_command(name="ping",

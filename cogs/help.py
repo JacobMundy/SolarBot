@@ -34,6 +34,8 @@ class MyHelp(commands.HelpCommand):
         :param command:
         :return:
         """
+        # Bridge commands cause errors when trying to get the signature
+        # They also cause doubled commands in the help embed if they are included
         if isinstance(command, discord.ext.bridge.core.BridgeCommand):
             return ""
         elif isinstance(command, discord.ext.bridge.core.BridgeSlashCommand):
@@ -48,7 +50,7 @@ class MyHelp(commands.HelpCommand):
         """
         pages = []
         current_page = ""
-        char_limit = 400  # The character limit for a discord embed description
+        char_limit = 400  # The character limit for a "page" in the help embed
 
         for cog, command_list in mapping.items():
             filtered = await self.filter_commands(command_list, sort=True)
