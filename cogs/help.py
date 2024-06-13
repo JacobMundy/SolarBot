@@ -1,8 +1,10 @@
 import discord
-from discord.ext import commands
+from discord.ext import bridge, commands
 from discord.ui import View
 
 
+# This is the view that will be used to display the
+# left and right arrows for the embeds as well as the close button
 class HelpView(View):
     def __init__(self, pages, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,6 +28,46 @@ class HelpView(View):
             await interaction.response.edit_message(embed=self.pages[self.current_page])
 
 
+# This is the cog that will contain the slash commands
+class SlashCommands(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.slash_command(name="help",
+                            description="Get help with the bot",
+                            test_guild="1241262568014610482")
+    async def help_command(self, ctx):
+        char_limit = 400
+        pages = []
+        current_page = ""
+        bot = self.bot
+
+        for cog in bot.cogs.values():
+            cog_name = getattr(cog, "qualified_name", "No Category")
+            cog_commands = [f"/{cmd.name} {', '.join([f'<{param.name}>' for param in cmd.options])}" for cmd in
+                            cog.get_commands() if
+                            isinstance(cmd, discord.ext.bridge.core.BridgeSlashCommand)]
+            if cog_commands:
+                cog_embed = f"**{cog_name} Commands**\n{'\n'.join(cog_commands)}\n\n"
+                if len(current_page + cog_embed) > char_limit:
+                    pages.append(current_page)
+                    current_page = cog_embed
+                else:
+                    current_page += cog_embed
+
+        if current_page:
+            pages.append(current_page)
+
+        embeds = [discord.Embed(description=page, color=discord.Color.blurple()) for page in pages]
+        for i, embed in enumerate(embeds):
+            embed.set_footer(text=f"Page {i + 1} of {len(embeds)}")  # Set the footer to show the current page number
+
+        view = HelpView(embeds)
+        await ctx.respond(embed=embeds[0], view=view)
+
+
+# This class overrides the default help command
+# and formats the help embeds to be more user-friendly
 class MyHelp(commands.HelpCommand):
     def get_command_signature(self, command):
         """
@@ -123,3 +165,7 @@ class MyHelp(commands.HelpCommand):
                                                                                             and u == self.context.author)
         if str(reaction) == "❌":
             await response.delete()
+
+def setup(bot: bridge.Bot):
+    bot.add_cog(SlashCommands(bot))
+    bot.help_command = MyHelp()
