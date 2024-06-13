@@ -2,10 +2,10 @@ import discord
 import os
 
 from dotenv import load_dotenv
-from discord.ext import bridge
+from discord.ext import bridge, commands
 from console_colors import FontColors
 from database import db_commands as database
-from cogs.help import MyHelp
+from cogs.help import MyHelp, HelpView
 
 load_dotenv()
 
@@ -15,10 +15,10 @@ cogs_list = ['banking',
              'games',
              'fun',
              'fishing_cog',
+             'help',
              'admin']
 
 bot = bridge.Bot(command_prefix="!", intents=discord.Intents.all())
-bot.help_command = MyHelp()
 
 @bot.event
 async def on_ready():
