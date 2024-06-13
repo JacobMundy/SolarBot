@@ -15,7 +15,6 @@ class Fishing(commands.Cog):
         # Setup choices for slash version of the commands
         # (their options are set in the setup function)
         self.item_choices = []
-        self.item_types = set()
 
         fishing_inventory = "database/fishing_inventory.json"
         with open(fishing_inventory, 'r') as inventory_loader:
@@ -24,12 +23,11 @@ class Fishing(commands.Cog):
 
         for user_id, player_inventory in whole_inventory.items():
             if player_inventory:
-                item_choices = [discord.OptionChoice(name=f"Name: {item["name"]} "
+                item_in_inventory = [discord.OptionChoice(name=f"Name: {item["name"]} "
                                                           f"Weight: {item['weight']}, "
                                                           f"Value: {item['value']}",
                                                      value=item['name'].lower()) for item in player_inventory]
-                self.item_types.update(item['name'].lower() for item in player_inventory)
-                self.item_choices.extend(item_choices)
+                self.item_choices.extend(item_in_inventory)
 
     @bridge.bridge_command(name="fish",
                            aliases=["cast"],
