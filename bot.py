@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from discord.ext import bridge, commands
 from console_colors import FontColors
 from database import db_commands as database
-from cogs.help import MyHelp, HelpView
 
 load_dotenv()
 
