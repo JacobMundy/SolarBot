@@ -1,13 +1,10 @@
 # Discord Bot
 
-
 ## Index
 * ### [Description](#Description)
   * ### [Current Features](#Current-Features)
 * ### [Setup](#Setup)
 * ### [Useful Links](#Useful-Links)
-
-
 
 ## Description
 ### This is the code for a simple discord bot that I am making for fun and to learn.
@@ -21,9 +18,6 @@
 * ###  A fishing minigame that allows users to catch unique fish and sell them for money
 * ###  A few simple admin commands to clear messages and kick users (if you and the bot have the correct permissions)
 * ###  And a few other fun commands such as a magic 8-ball and a coin flip
-
-
-
 
 ## Setup
 * ### Create new application in discord developer portal
@@ -58,9 +52,7 @@
     * ### `pip install -r requirements.txt`
   * ### Run the bot
     * ### `python main.py`
-
-
-
+    
 ## Useful Links
 * ### [Discord Developer Portal](https://discord.com/developers/applications)
 * ### [Discord.py Documentation](https://discordpy.readthedocs.io/en/stable/)
