@@ -23,18 +23,24 @@
 ## Setup
 *  Create new application in discord developer portal
 
-![Create new application](img/ApplicationPage.png)
+<p align="center">
+<img src="img/ApplicationPage.png" alt="Application Creation Page Image">
+</p>
 
 *  Select the bot section and create a new token 
    *  Keep the token secret, do not share it with anyone
   
-![Create new token](img/BotPage.png)
+<p align="center">
+<img src="img/BotPage.png" alt="Token Page Image">
+</p>
 
 *  Below the token you should also select all the intents
 
-![Select all intents](img/IntentsPage.png)
+<p align="center">
+<img src="img/IntentsPage.png" alt="Intents Page Image">
+</p>
 
-*  Now Select the OAuth2 Section to setup the bot invite link
+*  Now Select the OAuth2 Section to set up the bot invite link
    *  Select the bot scope
 
 *  Select the permissions
@@ -42,9 +48,17 @@
 
 * Copy the link and paste it in your browser to invite the bot to your server
 
-![Select the bot Scope](img/ScopePage.png)
-![Select the bot permissions](img/PermissionsPage.png)
-![Copy the link](img/URLPage.png)
+<p align="center">
+<img src="img/ScopePage.png" alt="Scope Page Image">
+</p>
+
+<p align="center">
+<img src="img/PermissionsPage.png" alt="Permissions Page Image">
+</p>
+
+<p align="center">
+<img src="img/URLPage.png" alt="Invite Link Page Image">
+</p>
 
 *  Now you can clone the repository and create a .env file in the root directory
    *  Add the following to the .env file replacing the {YOUR_TOKEN} with the token you copied earlier
