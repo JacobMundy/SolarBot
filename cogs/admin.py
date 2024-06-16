@@ -230,15 +230,70 @@ class Admin(commands.Cog):
 
         # If the bot doesn't share a server with the user it
         # won't be able to send a message to them
-        try:
-            await user.send(f"You have been kicked from {ctx.guild} for {reason}.")
-            await ctx.guild.kick(user, reason=reason)
-            await ctx.respond(f"{user} has been kicked for {reason}.")
+        await user.send(f"You have been kicked from {ctx.guild} for {reason}.")
+        await ctx.guild.kick(user, reason=reason)
+        await ctx.respond(f"{user} has been kicked for {reason}.")
 
-        except Exception as e:
-            print(f"{FontColors.FAIL} "
-                  f"Error: {e} "
-                  f"{FontColors.END}")
+    @commands.command(name="ban",
+                      description="Ban a user",
+                      test_guild="1241262568014610482")
+    async def ban_user(self, ctx, user: discord.User, *, reason: str = "No reason provided"):
+        """
+        Ban a user.
+        :param ctx:
+        :param user:
+        :param reason:
+        :return:
+        """
+        if not ctx.author.guild_permissions.ban_members:
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
+            return
+
+        # Check if the bot has the permissions to ban members,
+        # so we don't send a message to the user if the bot can't ban them
+        if not ctx.guild.me.guild_permissions.ban_members:
+            response = await ctx.respond("I don't have the permissions to do that!")
+            await response.delete(delay=20)
+            return
+
+        # If the bot doesn't share a server with the user it
+        # won't be able to send a message to them
+        await user.send(f"You have been banned from {ctx.guild} for {reason}.")
+        await ctx.guild.ban(user, reason=reason)
+        await ctx.respond(f"{user} has been banned for {reason}.")
+
+
+    @commands.command(name="unban",
+                      description="Unban a user",
+                      test_guild="1241262568014610482")
+    async def unban_user(self, ctx, user: discord.User, *, reason: str = "No reason provided"):
+        """
+        Unban a user.
+        :param ctx:
+        :param user:
+        :param reason:
+        :return:
+        """
+        if not ctx.author.guild_permissions.ban_members:
+            response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
+            await response.delete(delay=20)
+            return
+
+        # Check if the bot has the permissions to ban members,
+        # so we don't send a message to the user if the bot can't ban them
+        if not ctx.guild.me.guild_permissions.ban_members:
+            response = await ctx.respond("I don't have the permissions to do that!")
+            await response.delete(delay=20)
+            return
+
+        # We likely won't be able to send a message to the user if they are banned
+        # but, we can try
+        await user.send(f"You have been unbanned from {ctx.guild} for {reason}.")
+        await ctx.guild.unban(user, reason=reason)
+        await ctx.respond(f"{user} has been unbanned for {reason}.")
+
+
 
 
 def setup(bot):
