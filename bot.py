@@ -43,6 +43,11 @@ async def on_command(ctx):
 # This will probably be moved to a cog in the future to handle more events
 @bot.event
 async def on_command_error(ctx, error):
+    """
+    Handles errors that occur during command execution.
+    Will catch all errors that occur during command execution not just the ones specified.
+    So be sure to do something with the errors you aren't specifically handling.
+    """
     if isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
         param_list = ctx.command.clean_params.keys()
         params = ", ".join(param_list)
