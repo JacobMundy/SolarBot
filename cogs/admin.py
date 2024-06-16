@@ -287,13 +287,11 @@ class Admin(commands.Cog):
             await response.delete(delay=20)
             return
 
-        # We likely won't be able to send a message to the user if they are banned
-        # but, we can try
-        await user.send(f"You have been unbanned from {ctx.guild} for {reason}.")
         await ctx.guild.unban(user, reason=reason)
         await ctx.respond(f"{user} has been unbanned for {reason}.")
 
 
+#TODO: Check if sending message causes other functions to fail
 
 
 def setup(bot):
