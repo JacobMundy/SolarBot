@@ -17,7 +17,7 @@
 *   Some basic commands such as ping, greetings, and a custom help command
 *   Blackjack which uses the economy system to bet and win/lose money
 *   A fishing minigame that allows users to catch unique fish and sell them for money
-*   A few simple admin commands to clear messages and kick users (if you and the bot have the correct permissions)
+*   A few simple admin commands to clear messages, kick, ban, and unban users (if you and the bot have the correct permissions)
 *   And a few other fun commands such as a magic 8-ball and a coin flip
 
 ## Setup
