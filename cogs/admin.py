@@ -78,6 +78,7 @@ class Admin(commands.Cog):
         await ctx.send(message)
         await ctx.message.delete()
 
+
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         """
@@ -111,6 +112,7 @@ class Admin(commands.Cog):
                   f"Bot does not have permissions to send messages in the channel {preferred_channel}. "
                   f"{FontColors.END}")
 
+
     @commands.command(name="toggle_logs",
                       description="Toggle logging of deleted messages",
                       test_guild="1241262568014610482")
@@ -132,6 +134,7 @@ class Admin(commands.Cog):
             database.set_settings("log_deleted_messages", 1)
             await ctx.respond("Logging of deleted messages enabled.")
 
+    # TODO: json would probably be better for this
     @commands.command(name="set_logs_channel",
                       description="Set the channel to log deleted messages",
                       test_guild="1241262568014610482")
@@ -154,6 +157,7 @@ class Admin(commands.Cog):
 
         database.set_settings("log_deleted_messages_channel", channel_name)
         await ctx.respond(f"Logging of deleted messages set to {channel_name}.")
+
 
     @commands.command(name="blacklist_channel",
                       description="Blacklist a channel from bot commands",
@@ -181,6 +185,7 @@ class Admin(commands.Cog):
         database.add_blacklisted_channel(str(channel_id))
         await ctx.respond(f"{channel_name} has been blacklisted from bot commands.")
 
+
     @commands.command(name="unblacklist_channel",
                       description="Unblacklist a channel from bot commands",
                       test_guild="1241262568014610482")
@@ -206,6 +211,7 @@ class Admin(commands.Cog):
         database.remove_blacklisted_channel(str(channel_id))
         await ctx.respond(f"{channel_name} has been unblacklisted from bot commands.")
 
+
     @commands.command(name="kick",
                       description="Kick a user",
                       test_guild="1241262568014610482")
@@ -221,6 +227,7 @@ class Admin(commands.Cog):
             response = await ctx.respond("You don't have the permissions to do that!", ephemeral=True)
             await response.delete(delay=20)
             return
+
         # Check if the bot has the permissions to kick members,
         # so we don't send a message to the user if the bot can't kick them
         if not ctx.guild.me.guild_permissions.kick_members:
@@ -228,11 +235,10 @@ class Admin(commands.Cog):
             await response.delete(delay=20)
             return
 
-        # If the bot doesn't share a server with the user it
-        # won't be able to send a message to them
-        await user.send(f"You have been kicked from {ctx.guild} for {reason}.")
+        await self.send_direct_message(user, message=f"You have been kicked from {ctx.guild} for {reason}.")
         await ctx.guild.kick(user, reason=reason)
-        await ctx.respond(f"{user} has been kicked for {reason}.")
+        await ctx.respond(f"{user.name} has been kicked for {reason}.")
+
 
     @commands.command(name="ban",
                       description="Ban a user",
@@ -257,11 +263,10 @@ class Admin(commands.Cog):
             await response.delete(delay=20)
             return
 
-        # If the bot doesn't share a server with the user it
-        # won't be able to send a message to them
-        await user.send(f"You have been banned from {ctx.guild} for {reason}.")
+
+        await self.send_direct_message(user, message=f"You have been banned from {ctx.guild} for {reason}.")
         await ctx.guild.ban(user, reason=reason)
-        await ctx.respond(f"{user} has been banned for {reason}.")
+        await ctx.respond(f"{user.name} has been banned for {reason}.")
 
 
     @commands.command(name="unban",
@@ -291,7 +296,19 @@ class Admin(commands.Cog):
         await ctx.respond(f"{user} has been unbanned for {reason}.")
 
 
-#TODO: Check if sending message causes other functions to fail
+    async def send_direct_message(self, user: discord.User, *, message: str):
+        """
+        Send a direct message to a user.
+        :param user:
+        :param message:
+        :return:
+        """
+        try:
+            await user.send(message)
+        except Exception as e:
+            print(f"{FontColors.WARNING}")
+            print(f"Failed to send direct message to {user} with error: {e}")
+            print(f"{FontColors.END}")
 
 
 def setup(bot):
