@@ -13,11 +13,13 @@ load_dotenv()
 cogs_list = ['banking',
              'games',
              'fun',
+             'gambling',
              'fishing_cog',
              'help',
              'admin']
 
 bot = bridge.Bot(command_prefix="!", intents=discord.Intents.all())
+
 
 @bot.event
 async def on_ready():
@@ -39,6 +41,7 @@ async def on_command(ctx):
         print(f"{FontColors.OK_BLUE} "
               f"Command: {ctx.command} "
               f"{FontColors.END}")
+
 
 # This will probably be moved to a cog in the future to handle more events
 @bot.event
@@ -67,7 +70,6 @@ async def on_command_error(ctx, error):
         print(f"{FontColors.FAIL} "
               f"Error: {error} "
               f"{FontColors.END}")
-
 
 
 @bot.check
