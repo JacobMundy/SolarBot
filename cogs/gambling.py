@@ -1,5 +1,6 @@
 import asyncio
 import random
+from itertools import cycle
 
 import discord
 from discord.ext import commands
@@ -48,6 +49,7 @@ class Gambling(commands.Cog):
         ctx = await ctx.respond("Starting a game of blackjack!", view=view)
         await view.start_game(ctx)
 
+    # TODO: add a view like blackjack so the game can be restarted without a new command
     @bridge.bridge_command(name="slots",
                              description="play a game of slots",
                             test_guild="1241262568014610482")
@@ -55,55 +57,73 @@ class Gambling(commands.Cog):
         """
         Starts a game of slots and responds with the game state and appropriate buttons.
         :param ctx:
-        :param bet_amount:
         :return:
         """
 
         database.create_user(str(ctx.author.id))
 
-        bet_amount = 100
+        bet_amount = 200
 
         if database.get_balance(str(ctx.author.id)) < bet_amount:
-            await ctx.respond("You don't have enough money to bet that amount! \n"
+            await ctx.respond(f"You don't have enough money to play slots ({bet_amount})!  \n"
                               "current balance: " + str(database.get_balance(str(ctx.author.id))))
             return
 
 
         # Define the symbols
         symbols = ["🍎", "🍊", "🍋", "🍒", "🍇", "🍉", "🍓", "🍑", "🍈", "🍌", "🍐", "🍍"]
-        values = {"🍎": 10, "🍊": 20, "🍋": 30, "🍒": 40, "🍇": 50, "🍉": 60, "🍓": 70, "🍑": 80, "🍈": 90, "🍌": 100, "🍐": 110, "🍍": 120}
 
+        # Create a single message for the slot machine
+        slot_message = await ctx.respond("Starting slots!")
 
-        # Randomly select three symbols
-        slot_result = random.choices(symbols, k=3)
+        # Create three separate cycles for each wheel of the slot machine
+        wheels = [cycle(random.sample(symbols, len(symbols))) for _ in range(3)]
 
-        # Check if the selected symbols match any of the winning combinations
-        reward = 0
-        if len(set(slot_result)) == 1:
-            reward = values[slot_result[0]] * 100
-        elif len(set(slot_result)) == 2:
-            reward = values[slot_result[0]] * 10
-        elif len(set(slot_result)) == 3:
-            reward = values[slot_result[0]] * 3
+        # Create a list of lists to store the symbols of each wheel
+        wheel_symbols = [[next(wheel) for _ in range(3)] for wheel in wheels]
 
-        # Display the slot machine result with changing symbols
-        slot_message = await ctx.respond(" ".join(random.choices(symbols, k=3)))
-        for _ in range(3):
-            await asyncio.sleep(1)
-            await slot_message.edit(content=" ".join(random.choices(symbols, k=3)))
-        await asyncio.sleep(0.5)
-        await slot_message.edit(content=" ".join(slot_result))
+        # 0 = all wheels spinning, 1 = first wheel stopped,
+        # 2 = second wheel stopped, 3 = error (so don't do that)
+        async def loop_for_wheels(number_of_wheels: int):
+            for _ in range(random.randint(3, 5)):
+                for i in range(number_of_wheels, 3):
+                    wheel_symbols[i].pop(0)
+                    wheel_symbols[i].append(next(wheels[i]))
+
+                await asyncio.sleep(0.5)
+                wheel_strings = (f"==========" + "\n" +
+                                 wheel_symbols[0][2] + "  " + wheel_symbols[1][2] + "  " + wheel_symbols[2][2] + "\n" +
+                                 wheel_symbols[0][1] + "  " + wheel_symbols[1][1] + "  " + wheel_symbols[2][1] + "\n" +
+                                 wheel_symbols[0][0] + "  " + wheel_symbols[1][0] + "  " + wheel_symbols[2][0] + "\n" +
+                                 "==========" + "\n\n" +
+                                 "Slots are spinning...")
+                await slot_message.edit(content=" ".join(wheel_strings))
+
+        await loop_for_wheels(0)
+        await loop_for_wheels(1)
+        await loop_for_wheels(2)
+
+        # Calculate the reward based on the final symbols
+        final_symbols = [wheel[1] for wheel in wheel_symbols]
+        reward = sum([symbols.index(symbol) * 10 for symbol in final_symbols])
+
+        # If symbols are the same, multiply the reward (a set cant have two of the same elements)
+        if final_symbols[0] == final_symbols[1] == final_symbols[2]:
+            reward *= 50
+        elif len(set(final_symbols)) < 3:
+            reward *= 10
 
         # Update the player's balance and display the reward
         database.add_balance(str(ctx.author.id), reward)
-        await ctx.edit(f"{" ".join(slot_result)}\n You won {reward}! Your new balance is {database.get_balance(str(ctx.author.id))}")
 
+        final_string = (f"==========" + "\n" +
+                         wheel_symbols[0][2] + "  " + wheel_symbols[1][2] + "  " + wheel_symbols[2][2] + "\n" +
+                         wheel_symbols[0][1] + "  " + wheel_symbols[1][1] + "  " + wheel_symbols[2][1] + "\n" +
+                         wheel_symbols[0][0] + "  " + wheel_symbols[1][0] + "  " + wheel_symbols[2][0] + "\n" +
+                         "==========" + "\n\n" +
+                         f"Slots Over! You won {reward}!")
 
-
-
-
-
-
+        await slot_message.edit(content=" ".join(final_string))
 
 
 def setup(bot):
