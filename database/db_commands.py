@@ -162,7 +162,15 @@ def get_time_until_next_daily(user_id: str) -> int:
     # Calculate the time until the next daily reward
     return 24 - (current_time - last_claimed) // 3600
 
+def get_leaderboard():
+    """
+    Returns the top 100 users with the highest balance.
+    :return: list
+    """
+    c.execute("SELECT user, balance FROM bank ORDER BY balance DESC LIMIT 100")
+    return c.fetchall()
 
+# TODO: settings should definitely be JSON instead because of sqlite's limitations
 def get_settings(command: str) -> dict:
     """
     Returns the settings for the specified command.
