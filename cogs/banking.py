@@ -73,6 +73,24 @@ class Banking(commands.Cog):
         else:
             await ctx.respond("You don't have enough money to transfer that amount!")
 
+    # TODO: turn this into a page based embed
+    #       make it return user names instead of ids
+    @bridge.bridge_command(name="leaderboard",
+                           description="check the economy leaderboard",
+                           test_guild="1241262568014610482")
+    async def leaderboard(self, ctx: discord.ApplicationContext):
+        """
+        Responds with the top 10 users with the highest balance.
+        :param ctx:
+        :return:
+        """
+        leaderboard = database.get_leaderboard()
+        response = "```Leaderboard:\n"
+        for i, user in enumerate(leaderboard):
+            response += f"{i + 1}. {user[0]}: {user[1]}\n"
+        response += "```"
+        await ctx.respond(response)
+
 
 def setup(bot):
     bot.add_cog(Banking(bot))
