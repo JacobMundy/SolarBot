@@ -73,8 +73,8 @@ class Banking(commands.Cog):
         else:
             await ctx.respond("You don't have enough money to transfer that amount!")
 
-    # TODO: turn this into a page based embed
-    #       make it return user names instead of ids
+    # TODO: Move the View to its own file maybe?
+    # TODO: Could maybe use a code snippet instead of an embed, that looks better on other bots
     @bridge.bridge_command(name="leaderboard",
                            description="check the economy leaderboard",
                            test_guild="1241262568014610482")
@@ -85,12 +85,35 @@ class Banking(commands.Cog):
         :return:
         """
         leaderboard = database.get_leaderboard()
-        response = "```Leaderboard:\n"
-        for i, user in enumerate(leaderboard):
-            response += f"{i + 1}. {user[0]}: {user[1]}\n"
-        response += "```"
-        await ctx.respond(response)
+        pages = []
+        for i in range(0, len(leaderboard), 20):
+            embed = discord.Embed(title="Leaderboard", color=discord.Color.blue())
+            for user in leaderboard[i:i + 20]:
+                user_obj = await self.bot.fetch_user(user[0])  # Fetch the User object
+                embed.add_field(name=f"{i + 1}. {user_obj.name}", value=f"Balance: {user[1]}", inline=False)
+            pages.append(embed)
 
+        view = LeaderboardView(ctx, pages)
+        await ctx.respond(embed=pages[0], view=view)
+
+class LeaderboardView(discord.ui.View):
+    def __init__(self, ctx, pages):
+        super().__init__()
+        self.ctx = ctx
+        self.current_page = 0
+        self.pages = pages
+
+    @discord.ui.button(label='Previous', style=discord.ButtonStyle.secondary)
+    async def previous_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self.current_page > 0:
+            self.current_page -= 1
+            await interaction.response.edit_message(embed=self.pages[self.current_page])
+
+    @discord.ui.button(label='Next', style=discord.ButtonStyle.secondary)
+    async def next_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+        if self.current_page < len(self.pages) - 1:
+            self.current_page += 1
+            await interaction.response.edit_message(embed=self.pages[self.current_page])
 
 def setup(bot):
     bot.add_cog(Banking(bot))
