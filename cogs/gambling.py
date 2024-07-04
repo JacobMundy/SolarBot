@@ -6,7 +6,6 @@ from game_logic import blackjack
 from game_logic import slots
 
 # TODO: add more gambling commands like roulette, etc.
-#       add an economy leaderboard (this would probably be in the banking cog)
 
 
 class Gambling(commands.Cog):
