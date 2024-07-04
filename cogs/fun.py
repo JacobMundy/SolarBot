@@ -23,6 +23,7 @@ class Responses(commands.Cog):
         else:
             await ctx.respond(f'Pong! {round(self.bot.latency * 1000)}ms')
 
+
     @bridge.bridge_command(name="greetings",
                            description="greet the bot",
                            aliases=["hello", "hi", "hey", "yo", "sup"],

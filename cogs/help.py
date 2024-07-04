@@ -139,7 +139,6 @@ class MyHelp(commands.HelpCommand):
 
         await self.send_embed(embed)
 
-
     async def send_command_help(self, command):
         """
         Sends the help embed for a specific command.
