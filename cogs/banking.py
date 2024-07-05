@@ -86,11 +86,15 @@ class Banking(commands.Cog):
         """
         leaderboard = database.get_leaderboard()
         pages = []
+        leaderboard_rank = 1
+        # this will load the leaderboard in pages of 20 users.
+        # currently it only loads 100 players total, this can be changed in db_commands.py
         for i in range(0, len(leaderboard), 20):
             embed = discord.Embed(title="Leaderboard", color=discord.Color.blue())
             for user in leaderboard[i:i + 20]:
                 user_obj = await self.bot.fetch_user(user[0])  # Fetch the User object
-                embed.add_field(name=f"{i + 1}. {user_obj.name}", value=f"Balance: {user[1]}", inline=False)
+                embed.add_field(name=f"{leaderboard_rank}. {user_obj.name}", value=f"Balance: {user[1]}", inline=False)
+                leaderboard_rank += 1
             pages.append(embed)
 
         view = LeaderboardView(ctx, pages)
