@@ -89,7 +89,7 @@ class Admin(commands.Cog):
         logs_enabled = database.get_settings("log_deleted_messages")
         preferred_channel = database.get_settings("log_deleted_messages_channel")
         channel = discord.utils.get(message.guild.channels, name=preferred_channel)
-        if logs_enabled == 0 or message.channel == channel:
+        if logs_enabled is False or message.channel == channel:
             return
 
         try:
@@ -128,13 +128,13 @@ class Admin(commands.Cog):
             return
 
         if database.get_settings("log_deleted_messages") == 1:
-            database.set_settings("log_deleted_messages", 0)
+            database.set_settings("log_deleted_messages", False)
             await ctx.respond("Logging of deleted messages disabled.")
         else:
-            database.set_settings("log_deleted_messages", 1)
+            database.set_settings("log_deleted_messages", True)
             await ctx.respond("Logging of deleted messages enabled.")
 
-    # TODO: json would probably be better for this
+
     @commands.command(name="set_logs_channel",
                       description="Set the channel to log deleted messages",
                       test_guild="1241262568014610482")
