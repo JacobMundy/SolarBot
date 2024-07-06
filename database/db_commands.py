@@ -1,3 +1,4 @@
+import json
 import sqlite3
 import time
 import os
@@ -7,30 +8,27 @@ import os
 # If the database does not exist, it will be created
 dir_path = os.path.dirname(os.path.realpath(__file__))
 conn = sqlite3.connect(dir_path + '/bank.db')
+settings_path = dir_path + '/settings.json'
 
 # Create a cursor object
-c = conn.cursor()
+cursor = conn.cursor()
 
 # Create table
-c.execute('''CREATE TABLE IF NOT EXISTS bank
-             (user TEXT PRIMARY KEY, balance INTEGER)''')
+cursor.execute('''CREATE TABLE IF NOT EXISTS bank
+             (user TEXT PRIMARY KEY, balance INTEGER, last_claimed INTEGER DEFAULT 0)''')
 
-
-c.execute('''CREATE TABLE IF NOT EXISTS daily
-             (user TEXT PRIMARY KEY, last_claimed INTEGER)''')
-
-c.execute('''CREATE TABLE IF NOT EXISTS blacklisted_channels
-             (channel TEXT PRIMARY KEY)''')
-
-c.execute('''CREATE TABLE IF NOT EXISTS settings
-             (command TEXT PRIMARY KEY, command_settings BLOB)''')
-
-c.execute("INSERT OR IGNORE INTO settings (command, command_settings) "
-          "VALUES ('log_deleted_messages', 0)")
-
-c.execute("INSERT OR IGNORE INTO settings (command, command_settings) "
-          "VALUES ('log_deleted_messages_channel', 'message-logs')")
-
+# Open/create the settings file and load/create the settings
+if os.path.exists(settings_path):
+    settings_file = open(settings_path, 'r+')
+    settings = json.load(settings_file)
+    settings_file.close()
+else:
+    settings_file = open(settings_path, 'w+')
+    settings = {'log_deleted_messages': False,
+                'log_deleted_messages_channel': "message-logs",
+                'blacklisted_channels': []}
+    json.dump(settings, settings_file)
+    settings_file.close()
 
 
 conn.commit()
@@ -43,7 +41,7 @@ def create_user(user_id: str) -> None:
     :return:
     """
     # Insert a row of data
-    c.execute("INSERT OR IGNORE INTO bank (user, balance) VALUES (?, ?)", (user_id, 2000))
+    cursor.execute("INSERT OR IGNORE INTO bank (user, balance) VALUES (?, ?)", (user_id, 2000))
     conn.commit()
 
 
@@ -53,8 +51,8 @@ def get_balance(user_id: str) -> int or None:
     :param user_id:
     :return: int or None
     """
-    c.execute("SELECT balance FROM bank WHERE user=?", (user_id,))
-    row = c.fetchone()
+    cursor.execute("SELECT balance FROM bank WHERE user=?", (user_id,))
+    row = cursor.fetchone()
     if row:
         return row[0]
     return None
@@ -67,7 +65,7 @@ def set_balance(user_id: str, balance: int) -> None:
     :param balance:
     :return:
     """
-    c.execute("UPDATE bank SET balance=? WHERE user=?", (balance, user_id))
+    cursor.execute("UPDATE bank SET balance=? WHERE user=?", (balance, user_id))
     conn.commit()
 
 
@@ -121,8 +119,8 @@ def claim_daily(user_id: str) -> bool:
     :return: bool
     """
     # Get the last claimed timestamp
-    c.execute("SELECT last_claimed FROM daily WHERE user=?", (user_id,))
-    row = c.fetchone()
+    cursor.execute("SELECT last_claimed FROM bank WHERE user=?", (user_id,))
+    row = cursor.fetchone()
     if row:
         last_claimed = row[0]
     else:
@@ -136,7 +134,7 @@ def claim_daily(user_id: str) -> bool:
         # Claim the reward
         add_balance(user_id, 1000)
         # Update the last claimed timestamp
-        c.execute("INSERT OR REPLACE INTO daily (user, last_claimed) VALUES (?, ?)", (user_id, current_time))
+        cursor.execute("UPDATE bank SET last_claimed=? WHERE user=?", (current_time, user_id))
         conn.commit()
         return True
     return False
@@ -149,8 +147,8 @@ def get_time_until_next_daily(user_id: str) -> int:
     :return: int
     """
     # Get the last claimed timestamp
-    c.execute("SELECT last_claimed FROM daily WHERE user=?", (user_id,))
-    row = c.fetchone()
+    cursor.execute("SELECT last_claimed FROM bank WHERE user=?", (user_id,))
+    row = cursor.fetchone()
     if row:
         last_claimed = row[0]
     else:
@@ -167,32 +165,34 @@ def get_leaderboard():
     Returns the top 100 users with the highest balance.
     :return: list
     """
-    c.execute("SELECT user, balance FROM bank ORDER BY balance DESC LIMIT 100")
-    return c.fetchall()
+    cursor.execute("SELECT user, balance FROM bank ORDER BY balance DESC LIMIT 100")
+    return cursor.fetchall()
 
-# TODO: settings should definitely be JSON instead because of sqlite's limitations
-def get_settings(command: str) -> dict:
+
+def get_settings(command: str):
     """
     Returns the settings for the specified command.
     :param command:
     :return: dict
     """
-    c.execute("SELECT command_settings FROM settings WHERE command=?", (command,))
-    row = c.fetchone()
-    if row:
-        return row[0]
-    return {}
+    try:
+        return settings[command]
+    except KeyError:
+        return {}
 
 
-def set_settings(command: str, settings) -> None:
+def set_settings(command: str, command_value) -> None:
     """
     Sets the settings for the specified command.
     :param command:
-    :param settings:
+    :param command_value:
     :return:
     """
-    c.execute("UPDATE settings SET command_settings=? WHERE command=?", (settings, command))
-    conn.commit()
+    if command not in settings:
+        return
+    with open(settings_path, 'w') as settings_file:
+        settings[command] = command_value
+        json.dump(settings, settings_file)
 
 
 def add_blacklisted_channel(channel_id: str) -> None:
@@ -201,8 +201,9 @@ def add_blacklisted_channel(channel_id: str) -> None:
     :param channel_id:
     :return:
     """
-    c.execute("INSERT OR IGNORE INTO blacklisted_channels (channel) VALUES (?)", (channel_id,))
-    conn.commit()
+    with open(settings_path, 'w') as settings_file:
+        settings['blacklisted_channels'].append(channel_id)
+        json.dump(settings, settings_file)
 
 
 def remove_blacklisted_channel(channel_id: str) -> None:
@@ -211,8 +212,9 @@ def remove_blacklisted_channel(channel_id: str) -> None:
     :param channel_id:
     :return:
     """
-    c.execute("DELETE FROM blacklisted_channels WHERE channel=?", (channel_id,))
-    conn.commit()
+    with open(settings_path, 'w') as settings_file:
+        settings['blacklisted_channels'].remove(channel_id)
+        json.dump(settings, settings_file)
 
 
 def is_blacklisted_channel(channel_id: str) -> bool:
@@ -221,8 +223,6 @@ def is_blacklisted_channel(channel_id: str) -> bool:
     :param channel_id:
     :return: bool
     """
-    c.execute("SELECT * FROM blacklisted_channels WHERE channel=?", (channel_id,))
-    row = c.fetchone()
-    return row is not None
+    return channel_id in settings['blacklisted_channels']
 
 # conn.close()
