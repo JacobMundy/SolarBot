@@ -43,7 +43,6 @@ async def on_command(ctx):
               f"{FontColors.END}")
 
 
-# This will probably be moved to a cog in the future to handle more events
 @bot.event
 async def on_command_error(ctx, error):
     """
