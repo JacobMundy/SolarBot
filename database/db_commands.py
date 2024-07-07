@@ -17,7 +17,9 @@ cursor = conn.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS bank
              (user TEXT PRIMARY KEY, balance INTEGER, last_claimed INTEGER DEFAULT 0)''')
 
-# Open/create the settings file and load/create the settings
+# Open/create the settings file and load/create the settings.
+# The settings file will be opened in each function that requires it because we're
+# closing the file after each operation to save the changes.
 if os.path.exists(settings_path):
     settings_file = open(settings_path, 'r+')
     settings = json.load(settings_file)
@@ -45,7 +47,7 @@ def create_user(user_id: str) -> None:
     conn.commit()
 
 
-def get_balance(user_id: str) -> int or None:
+def get_balance(user_id: str) -> int | None:
     """
     Returns the balance of the user.
     :param user_id:
@@ -85,7 +87,7 @@ def add_balance(user_id: str, amount: int) -> None:
         set_balance(user_id, amount)
 
 
-def subtract_balance(user_id: str, amount: int):
+def subtract_balance(user_id: str, amount: int) -> None:
     """
     Subtracts the specified amount from the user's balance.
     :param user_id:
@@ -169,7 +171,7 @@ def get_leaderboard():
     return cursor.fetchall()
 
 
-def get_settings(command: str):
+def get_settings(command: str) -> list | bool | str:
     """
     Returns the settings for the specified command.
     :param command:
@@ -178,7 +180,7 @@ def get_settings(command: str):
     try:
         return settings[command]
     except KeyError:
-        return {}
+        return "Command not found in settings."
 
 
 def set_settings(command: str, command_value) -> None:
