@@ -73,8 +73,6 @@ class Banking(commands.Cog):
         else:
             await ctx.respond("You don't have enough money to transfer that amount!")
 
-    # TODO: Move the View to its own file maybe?
-    # TODO: Could maybe use a code snippet instead of an embed, that looks better on other bots
     @bridge.bridge_command(name="leaderboard",
                            description="check the economy leaderboard",
                            test_guild="1241262568014610482")
