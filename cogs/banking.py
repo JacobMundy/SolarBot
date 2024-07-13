@@ -73,6 +73,7 @@ class Banking(commands.Cog):
         else:
             await ctx.respond("You don't have enough money to transfer that amount!")
 
+
     @bridge.bridge_command(name="leaderboard",
                            description="check the economy leaderboard",
                            test_guild="1241262568014610482")
