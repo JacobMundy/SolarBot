@@ -17,8 +17,10 @@
 *   Some basic commands such as ping, greetings, and a custom help command
 *   Blackjack which uses the economy system to bet and win/lose money
 *   A fishing minigame that allows users to catch unique fish and sell them for money
-*   A few simple admin commands to clear messages, kick, ban, and unban users (if you and the bot have the correct permissions)
+*   A few simple admin commands to clear messages, kick, ban, and unban users (if you and the bot have the correct permissions).
+*   Some more complex admin commands such as enabling message logging or blacklisting channels so that the bot cant speak in them (message logging only works for messages sent AFTER the bot has started running).
 *   And a few other fun commands such as a magic 8-ball and a coin flip
+*   This is not an exhaustive list so feel free to look around!
 
 ## Setup
 *  Create new application in discord developer portal
