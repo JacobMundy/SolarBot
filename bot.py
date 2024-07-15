@@ -11,7 +11,6 @@ load_dotenv()
 # Add any cogs you want to load here,
 # should be names of the files in the cogs directory
 cogs_list = ['banking',
-             'games',
              'fun',
              'gambling',
              'fishing_cog',
