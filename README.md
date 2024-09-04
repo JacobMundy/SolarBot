@@ -10,7 +10,6 @@
  This is the code for a simple discord bot that I am making for fun and to learn.
  Feel free to use the code for your own bot or to learn from it.
  The bot is written in python and mainly uses the py-cord library which is a fork of discord.py among a few other libraries.
- The bot is still a work in progress and is changing frequently as I add new features and fix bugs.
 
 ## Current Features
 *   A banking system with a simple economy that uses a sqlite database to store user balances
